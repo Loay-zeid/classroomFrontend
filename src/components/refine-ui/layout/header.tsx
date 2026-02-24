@@ -50,6 +50,8 @@ function MobileHeader() {
   const { open, isMobile } = useSidebar();
 
   const { title } = useRefineOptions();
+  const titleText = title?.text ?? "Classrom";
+  const titleIcon = title?.icon ?? null;
 
   return (
     <header
@@ -95,7 +97,7 @@ function MobileHeader() {
           }
         )}
       >
-        <div>{title.icon}</div>
+        <div>{titleIcon}</div>
         <h2
           className={cn(
             "text-sm",
@@ -108,7 +110,7 @@ function MobileHeader() {
             }
           )}
         >
-          {title.text}
+          {titleText}
         </h2>
       </div>
 

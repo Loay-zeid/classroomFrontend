@@ -212,6 +212,8 @@ function SidebarItemLink({ item, selectedKey }: MenuItemProps) {
 function SidebarHeader() {
   const { title } = useRefineOptions();
   const { open, isMobile } = useShadcnSidebar();
+  const titleText = title?.text ?? "Classrom";
+  const titleIcon = title?.icon ?? <ListIcon />;
 
   return (
     <ShadcnSidebarHeader
@@ -243,7 +245,7 @@ function SidebarHeader() {
           }
         )}
       >
-        <div>{title.icon}</div>
+        <div>{titleIcon}</div>
         <h2
           className={cn(
             "text-sm",
@@ -256,7 +258,7 @@ function SidebarHeader() {
             }
           )}
         >
-          {title.text}
+          {titleText}
         </h2>
       </div>
 
