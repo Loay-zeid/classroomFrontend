@@ -17,6 +17,11 @@ import { Layout } from "@/components/refine-ui/layout/layout.tsx";
 import SubjectsCreate from "@/Pages/Subjects/create.tsx";
 import SubjectList from "@/Pages/Subjects/list.tsx";
 
+/**
+ * Root React component that configures application providers, Refine resources, and routes for the dashboard and subjects pages.
+ *
+ * @returns The root React element for the application.
+ */
 function App() {
   return (
     <BrowserRouter>
