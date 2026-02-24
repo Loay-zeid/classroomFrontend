@@ -6,6 +6,14 @@ import { cn } from "@/lib/utils";
 import type { PropsWithChildren } from "react";
 import { Sidebar } from "./sidebar";
 
+/**
+ * App layout wrapper that provides sidebar state and renders the global chrome and main content area.
+ *
+ * Renders a SidebarProvider, the Sidebar, a Header, and a main content region that contains `children`.
+ *
+ * @param children - The React nodes to render inside the layout's main content area
+ * @returns A React element representing the application layout with sidebar and header
+ */
 export function Layout({ children }: PropsWithChildren) {
   return (
     <SidebarProvider>
