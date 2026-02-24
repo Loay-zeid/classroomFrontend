@@ -14,7 +14,7 @@ import { dataProvider } from "./providers/data";
 import Dashboard from "@/Pages/Dashboard.tsx";
 import { BookOpen, Home } from "lucide-react";
 import { Layout } from "@/components/refine-ui/layout/layout.tsx";
-import SubjectsCreat from "@/Pages/Subjects/creat.tsx";
+import SubjectsCreate from "@/Pages/Subjects/create.tsx";
 import SubjectList from "@/Pages/Subjects/list.tsx";
 
 function App() {
@@ -41,8 +41,8 @@ function App() {
                 {
                   name: "subjects",
                   list: "/subjects",
-                  create: "/subjects/creat",
-                  meta: { label: "subjects", icon: <BookOpen /> },
+                  create: "/subjects/create",
+                  meta: { label: "Subjects", icon: <BookOpen /> },
                 },
               ]}
             >
@@ -58,7 +58,7 @@ function App() {
 
                   <Route path="subjects">
                     <Route index element={<SubjectList />} />
-                    <Route path="creat" element={<SubjectsCreat />} />
+                    <Route path="create" element={<SubjectsCreate />} />
                   </Route>
                 </Route>
               </Routes>

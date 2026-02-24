@@ -1,7 +1,8 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { useTable } from "@refinedev/react-table";
 import { Search } from "lucide-react";
+import { CrudFilter } from "@refinedev/core";
 import { Subject } from "@/types";
 import { DEPARTMENTS_OPTIONS } from "@/constence";
 import { ListView } from "@/components/refine-ui/views/list-view.tsx";
@@ -21,15 +22,6 @@ import { Badge } from "@/components/ui/badge.tsx";
 const SubjectList = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedDepartment, setSelectedDepartment] = useState("all");
-
-    const departmentFilters =
-        selectedDepartment === "all"
-            ? []
-            : [{ field: "department", operator: "eq" as const, value: selectedDepartment }];
-
-    const searchFilters = searchQuery
-        ? [{ field: "name", operator: "contains" as const, value: searchQuery }]
-        : [];
 
     const subjectTable = useTable<Subject>({
         columns: useMemo<ColumnDef<Subject>[]>(
@@ -63,7 +55,7 @@ const SubjectList = () => {
                     size: 350,
                     header: () => <p className="column-title">Brief Description</p>,
                     cell: ({ getValue }) => (
-                        <span className="truncate line-clamp-2">{getValue<string>()}</span>
+                        <span className="line-clamp-2">{getValue<string>()}</span>
                     ),
                 },
             ],
@@ -72,9 +64,31 @@ const SubjectList = () => {
         refineCoreProps: {
             resource: "subjects",
             pagination: { pageSize: 10, mode: "server" },
-            filters: { permanent: [...departmentFilters, ...searchFilters] },
         },
     });
+    const { setFilters } = subjectTable.refineCore;
+
+    useEffect(() => {
+        const nextFilters: CrudFilter[] = [];
+
+        if (selectedDepartment !== "all") {
+            nextFilters.push({
+                field: "department",
+                operator: "eq",
+                value: selectedDepartment,
+            });
+        }
+
+        if (searchQuery.trim()) {
+            nextFilters.push({
+                field: "name",
+                operator: "contains",
+                value: searchQuery.trim(),
+            });
+        }
+
+        setFilters(nextFilters, "replace");
+    }, [selectedDepartment, searchQuery, setFilters]);
 
     return (
         <ListView>

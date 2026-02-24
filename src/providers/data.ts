@@ -27,6 +27,12 @@ const filterSubjects = (subjects: Subject[], filters?: CrudFilter[]): Subject[] 
                 if (filter.operator === "contains") {
                     return currentValue.includes(filterValue);
                 }
+
+                console.warn("Unsupported filter operator in subjects dataProvider", {
+                    operator: filter.operator,
+                    filter,
+                });
+                return false;
             }
 
             return true;
