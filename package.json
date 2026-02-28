@@ -38,7 +38,7 @@
     "@refinedev/react-hook-form": "^5.0.0",
     "@refinedev/react-router": "^2.0.0",
     "@refinedev/react-table": "^6.0.0",
-    "@refinedev/rest": "^2.1.0",
+    "@refinedev/rest": "^2.1.1",
     "@refinedev/simple-rest": "^6.0.0",
     "@tailwindcss/vite": "^4.1.8",
     "@tanstack/react-table": "^8.2.6",
@@ -69,7 +69,8 @@
   "devDependencies": {
     "@eslint/js": "^9.25.0",
     "@tailwindcss/postcss": "^4.1.4",
-    "@types/node": "^20",
+    "@types/express": "^5.0.6",
+    "@types/node": "^20.19.33",
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.0",
     "@typescript-eslint/eslint-plugin": "^5.57.1",
@@ -80,7 +81,8 @@
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^16.0.0",
     "tailwindcss": "^4.1.4",
-    "typescript": "^5.8.3",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
     "typescript-eslint": "^8.30.1",
     "vite": "^6.3.5"
   },

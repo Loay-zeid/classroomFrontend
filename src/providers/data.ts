@@ -1,87 +1,82 @@
-import {
-    CrudFilter,
-    DataProvider,
-    GetListParams,
-    GetListResponse,
-    BaseRecord,
-} from "@refinedev/core";
-import { Subject } from "@/types";
-import { mockSubjects } from "@/mock/subjects";
+import { createDataProvider } from "@refinedev/rest";
+import type { CreateDataProviderOptions } from "@refinedev/rest";
+import { BACKEND_BASE_URL } from "@/constence";
+import { ListResponse, Subject } from "@/types";
 
-const filterSubjects = (subjects: Subject[], filters?: CrudFilter[]): Subject[] => {
-    if (!filters?.length) {
-        return subjects;
-    }
 
-    return subjects.filter((subject) =>
-        filters.every((filter) => {
-            if ("field" in filter && "operator" in filter) {
-                const value = subject[filter.field as keyof Subject];
-                const filterValue = String(filter.value ?? "").toLowerCase();
-                const currentValue = String(value ?? "").toLowerCase();
+type SubjectApiRow = {
+    id: number;
+    name: string;
+    code?: string;
+    description?: string;
+    courseCode?: string;
+    briefDescription?: string;
+    department?: unknown;
+    departments?: unknown;
+    created_at?: string;
+    createdAt?: string;
+};
 
-                if (filter.operator === "eq") {
-                    return currentValue === filterValue;
+const mapSubject = (row: SubjectApiRow): Subject => ({
+    id: row.id,
+    name: row.name,
+    courseCode: row.courseCode ?? row.code ?? "",
+    briefDescription: row.briefDescription ?? row.description ?? "",
+    department: (row.department ?? row.departments ?? "") as Subject["department"],
+    createdAt: row.createdAt ?? row.created_at,
+});
+
+const options: CreateDataProviderOptions = {
+    getList: {
+        getEndpoint: ({ resource }) => resource,
+
+        buildQueryParams: async ({ resource, pagination, filters }) => {
+            const page = pagination?.currentPage ?? 1;
+            const pageSize = pagination?.pageSize ?? 10;
+
+            const params: Record<string, string | number> = { page, limit: pageSize };
+
+            filters?.forEach((filter) => {
+                const field = 'field' in filter ? filter.field : '';
+                const value = String(filter.value);
+
+                if (resource === 'subjects') {
+                    if (field === 'department') params.department = value;
+                    if (field === 'name' || field === 'code') params.search = value;
                 }
+            });
 
-                if (filter.operator === "contains") {
-                    return currentValue.includes(filterValue);
-                }
+            return params;
+        },
 
-                console.warn("Unsupported filter operator in subjects dataProvider", {
-                    operator: filter.operator,
-                    filter,
-                });
-                return false;
+
+        mapResponse: async (response: Response) => {
+            if (!response.ok) {
+                throw new Error(`Request failed with status ${response.status}`);
             }
 
-            return true;
-        }),
-    );
+            const payload: ListResponse<SubjectApiRow> = await response.clone().json();
+            return (payload.data ?? []).map(mapSubject);
+        },
+        getTotalCount: async (response: Response) => {
+            if (!response.ok) {
+                return 0;
+            }
+
+            const payload: ListResponse<SubjectApiRow> & {
+                pagination?: { total?: number; totalCount?: number };
+            } = await response.clone().json();
+
+            return (
+                payload.pagination?.total ??
+                payload.pagination?.totalCount ??
+                payload.data?.length ??
+                0
+            );
+        },
+    },
 };
 
-export const dataProvider: DataProvider = {
-    getList: async <
-        TData extends BaseRecord = BaseRecord
-    >(
-        { resource, pagination, filters }: GetListParams
-    ): Promise<GetListResponse<TData>> => {
+const { dataProvider } = createDataProvider(BACKEND_BASE_URL, options);
 
-        if (resource !== "subjects") {
-            return {
-                data: [] as TData[],
-                total: 0,
-            };
-        }
-
-        const filteredData = filterSubjects(mockSubjects, filters);
-        const paginationState = pagination as { current?: number; pageSize?: number } | undefined;
-        const current = paginationState?.current ?? 1;
-        const pageSize = paginationState?.pageSize ?? 10;
-        const start = (current - 1) * pageSize;
-        const end = start + pageSize;
-
-        return {
-            data: filteredData.slice(start, end) as unknown as TData[],
-            total: filteredData.length,
-        };
-    },
-
-    getOne: async () => {
-        throw new Error("Not implemented");
-    },
-
-    create: async () => {
-        throw new Error("Not implemented");
-    },
-
-    update: async () => {
-        throw new Error("Not implemented");
-    },
-
-    deleteOne: async () => {
-        throw new Error("Not implemented");
-    },
-
-    getApiUrl: () => "",
-};
+export { dataProvider };

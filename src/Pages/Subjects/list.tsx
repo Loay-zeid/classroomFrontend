@@ -4,10 +4,11 @@ import { useTable } from "@refinedev/react-table";
 import { Search } from "lucide-react";
 import { CrudFilter } from "@refinedev/core";
 import { Subject } from "@/types";
-import { DEPARTMENTS_OPTIONS } from "@/constence";
+import { DEPARTMENT_OPTIONS } from "@/constence";
 import { ListView } from "@/components/refine-ui/views/list-view.tsx";
 import { Breadcrumb } from "@/components/refine-ui/layout/breadcrumb.tsx";
 import { Input } from "@/components/ui/input.tsx";
+
 import {
     Select,
     SelectContent,
@@ -44,7 +45,7 @@ const SubjectList = () => {
                 },
                 {
                     id: "department",
-                    accessorKey: "department",
+                    accessorKey: "department.name",
                     size: 120,
                     header: () => <p className="column-title">Department</p>,
                     cell: ({ getValue }) => <Badge variant="secondary">{getValue<string>()}</Badge>,
@@ -115,7 +116,7 @@ const SubjectList = () => {
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">All departments</SelectItem>
-                            {DEPARTMENTS_OPTIONS.map((department) => (
+                            {DEPARTMENT_OPTIONS.map((department) => (
                                 <SelectItem key={department.value} value={department.value}>
                                     {department.label}
                                 </SelectItem>
@@ -131,3 +132,4 @@ const SubjectList = () => {
 };
 
 export default SubjectList;
+
