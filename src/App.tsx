@@ -16,6 +16,7 @@ import { BookOpen, Home } from "lucide-react";
 import { Layout } from "@/components/refine-ui/layout/layout.tsx";
 import SubjectsCreate from "@/Pages/Subjects/create.tsx";
 import SubjectList from "@/Pages/Subjects/list.tsx";
+import.meta.env.VITE_BACKEND_BASE_URL
 
 function App() {
   return (
