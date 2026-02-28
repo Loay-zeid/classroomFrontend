@@ -22,7 +22,15 @@ const mapSubject = (row: SubjectApiRow): Subject => ({
     name: row.name,
     courseCode: row.courseCode ?? row.code ?? "",
     briefDescription: row.briefDescription ?? row.description ?? "",
-    department: (row.department ?? row.departments ?? "") as Subject["department"],
+    department:
+        typeof row.department === "object" &&
+        row.department !== null &&
+        "name" in row.department &&
+        typeof (row.department as { name?: unknown }).name === "string"
+            ? ((row.department as { name: string }).name as Subject["department"])
+            : typeof (row.department || row.departments || "") === "string"
+                ? ((row.department || row.departments || "") as Subject["department"])
+                : ("" as Subject["department"]),
     createdAt: row.createdAt ?? row.created_at,
 });
 
