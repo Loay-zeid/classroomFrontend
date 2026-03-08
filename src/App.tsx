@@ -49,6 +49,7 @@ function App() {
                   create: "/subjects/create",
                   meta: { label: "Subjects", icon: <BookOpen /> },
                 },
+                // Classes resource routes and nav metadata.
                 {
                   name: "classes ",
                   list: "/classes",

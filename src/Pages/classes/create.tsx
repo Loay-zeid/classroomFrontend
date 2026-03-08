@@ -50,6 +50,7 @@ const ClassesCreate = () => {
         refineCore: { onFinish },
         handleSubmit,
         formState: { isSubmitting, errors },
+        setError,
         control,
     } = form;
 
@@ -80,7 +81,12 @@ const ClassesCreate = () => {
         try {
             await onFinish(values);
         } catch (error) {
+            // Surface failures to the UI and let upstream handlers react.
             console.error("Error creating class:", error);
+            setError("root", {
+                message: "Failed to create class. Please try again.",
+            });
+            throw error;
         }
     };
 
@@ -120,6 +126,11 @@ const ClassesCreate = () => {
                     <CardContent className="mt-7">
                         <Form {...form}>
                             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+                                {errors.root?.message && (
+                                    <p className="text-destructive text-sm">
+                                        {errors.root.message}
+                                    </p>
+                                )}
                                 <FormField
                                     control={control}
                                     name="bannerUrl"
@@ -312,7 +323,14 @@ const ClassesCreate = () => {
 
                                 <Separator />
 
-                                <Button type="submit" size="lg" className="w-full">
+                                {/* Disable submit while the create mutation is in flight. */}
+                                <Button
+                                    type="submit"
+                                    size="lg"
+                                    className="w-full"
+                                    disabled={isSubmitting}
+                                    aria-disabled={isSubmitting}
+                                >
                                     {isSubmitting ? (
                                         <div className="flex gap-1">
                                             <span>Creating Class...</span>

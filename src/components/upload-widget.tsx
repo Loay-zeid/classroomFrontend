@@ -21,6 +21,19 @@ const UploadWidget = ({ value, onChange, disabled }: UploadWidgetProps) => {
     useEffect(() => {
         if (typeof window === "undefined") return;
 
+        let intervalId: number | null = null;
+
+        const cleanupWidget = () => {
+            if (intervalId !== null) {
+                window.clearInterval(intervalId);
+                intervalId = null;
+            }
+            if (widgetRef.current?.destroy) {
+                widgetRef.current.destroy();
+                widgetRef.current = null;
+            }
+        };
+
         const initializeWidget = () => {
             if (widgetRef.current) return true;
             if (!window.cloudinary) return false;
@@ -46,14 +59,16 @@ const UploadWidget = ({ value, onChange, disabled }: UploadWidgetProps) => {
             return true;
         };
 
-        if (initializeWidget()) return;
+        if (initializeWidget()) {
+            return cleanupWidget;
+        }
 
-        const interval_id = window.setInterval(() => {
+        intervalId = window.setInterval(() => {
             if (initializeWidget()) {
-                window.clearInterval(interval_id);
+                cleanupWidget();
             }
         }, 500);
-        return () => window.clearInterval(interval_id);
+        return cleanupWidget;
     }, []);
 
     const openWidget = useCallback(() => {
@@ -64,10 +79,15 @@ const UploadWidget = ({ value, onChange, disabled }: UploadWidgetProps) => {
     return (
         <div className="space-y-2">
             {preview ? (
-                <div className="upload-preview">
+                <button
+                    type="button"
+                    className="upload-preview"
+                    onClick={openWidget}
+                    disabled={disabled}
+                    aria-label="Replace uploaded image"
+                >
                     <img src={preview.url} alt="Upload File" />
-
-                </div>
+                </button>
             ) : (
                 <div
                     className="upload-dropzone"
