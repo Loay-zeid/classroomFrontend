@@ -17,20 +17,34 @@ type SubjectApiRow = {
     createdAt?: string;
 };
 
+const toDepartmentName = (value: unknown): string => {
+    if (typeof value === "string") {
+        return value;
+    }
+
+    if (typeof value === "object" && value !== null) {
+        const candidate = value as {
+            name?: unknown;
+            title?: unknown;
+            label?: unknown;
+            department?: unknown;
+        };
+
+        if (typeof candidate.name === "string") return candidate.name;
+        if (typeof candidate.title === "string") return candidate.title;
+        if (typeof candidate.label === "string") return candidate.label;
+        if (typeof candidate.department === "string") return candidate.department;
+    }
+
+    return "";
+};
+
 const mapSubject = (row: SubjectApiRow): Subject => ({
     id: row.id,
     name: row.name,
     courseCode: row.courseCode ?? row.code ?? "",
     briefDescription: row.briefDescription ?? row.description ?? "",
-    department:
-        typeof row.department === "object" &&
-        row.department !== null &&
-        "name" in row.department &&
-        typeof (row.department as { name?: unknown }).name === "string"
-            ? ((row.department as { name: string }).name as Subject["department"])
-            : typeof (row.department || row.departments || "") === "string"
-                ? ((row.department || row.departments || "") as Subject["department"])
-                : ("" as Subject["department"]),
+    department: (toDepartmentName(row.department) || toDepartmentName(row.departments) || "") as Subject["department"],
     createdAt: row.createdAt ?? row.created_at,
 });
 
