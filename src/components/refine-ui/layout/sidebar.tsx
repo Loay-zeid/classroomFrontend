@@ -209,6 +209,13 @@ function SidebarItemLink({ item, selectedKey }: MenuItemProps) {
   return <SidebarButton item={item} isSelected={isSelected} asLink={true} />;
 }
 
+/**
+ * Renders the sidebar header showing an icon and title from refine options with sensible defaults and a visibility-controlled sidebar trigger.
+ *
+ * The displayed title text and icon come from refine options' `title` if provided; otherwise `"Classrom"` and a `ListIcon` are used. The header's layout and the trigger's visibility adapt to the sidebar `open` state and `isMobile` flag.
+ *
+ * @returns The rendered sidebar header JSX element.
+ */
 function SidebarHeader() {
   const { title } = useRefineOptions();
   const { open, isMobile } = useShadcnSidebar();

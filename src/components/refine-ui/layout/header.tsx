@@ -46,6 +46,13 @@ function DesktopHeader() {
   );
 }
 
+/**
+ * Renders the mobile variant of the application's header with a sidebar trigger, title (icon + text), and theme toggle.
+ *
+ * The sidebar trigger's visibility and pointer behavior are driven by the sidebar state (`open`, `isMobile`). The title uses the configured refine options' title when available and falls back to a safe default text and no icon.
+ *
+ * @returns A JSX element representing the mobile header bar.
+ */
 function MobileHeader() {
   const { open, isMobile } = useSidebar();
 
