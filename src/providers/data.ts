@@ -1,5 +1,6 @@
 import { createDataProvider } from "@refinedev/rest";
 import type { CreateDataProviderOptions } from "@refinedev/rest";
+import type { HttpError } from "@refinedev/core";
 import { BACKEND_BASE_URL } from "@/constence";
 import { ListResponse, Subject } from "@/types";
 
@@ -48,6 +49,23 @@ const mapSubject = (row: SubjectApiRow): Subject => ({
     createdAt: row.createdAt ?? row.created_at,
 });
 
+const buildHttpError = async (response: Response): Promise<HttpError> => {
+    let message = "Request failed";
+
+    try {
+        const payload = (await response.json()) as {message?:string};
+
+    if (payload?.message) message = payload.message;
+    } catch {
+        // Keep default message when body parsing fails.
+    }
+
+    return {
+        message,
+        statusCode: response.status,
+    };
+};
+
 const options: CreateDataProviderOptions = {
     getList: {
         getEndpoint: ({ resource }) => resource,
@@ -74,15 +92,14 @@ const options: CreateDataProviderOptions = {
 
         mapResponse: async (response: Response) => {
             if (!response.ok) {
-                throw new Error(`Request failed with status ${response.status}`);
+                throw await buildHttpError(response);
             }
-
             const payload: ListResponse<SubjectApiRow> = await response.clone().json();
             return (payload.data ?? []).map(mapSubject);
         },
         getTotalCount: async (response: Response) => {
             if (!response.ok) {
-                return 0;
+                throw await buildHttpError(response);
             }
 
             const payload: ListResponse<SubjectApiRow> & {

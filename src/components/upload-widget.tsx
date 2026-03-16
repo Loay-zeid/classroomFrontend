@@ -101,6 +101,7 @@ const UploadWidget = ({ value, onChange, disabled }: UploadWidgetProps) => {
                         }
                     }}
                 >
+
                     <div className="upload-prompt">
                         <UploadCloud className="icon" />
                         <div>
