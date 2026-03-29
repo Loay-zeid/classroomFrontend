@@ -22,11 +22,11 @@ import {
 import { CreateView } from "@/components/refine-ui/views/create-view";
 import { Breadcrumb } from "@/components/refine-ui/layout/breadcrumb";
 import { Textarea } from "@/components/ui/textarea";
-import { useBack } from "@refinedev/core";
+import { useBack, useList } from "@refinedev/core";
 import { Loader2 } from "lucide-react";
 import { classSchema } from "@/lib/schema";
 import UploadWidget from "@/components/upload-widget";
-import { UploadWidgetValue } from "@/types";
+import { Subject, UploadWidgetValue, User } from "@/types";
 import type { ControllerRenderProps } from "react-hook-form";
 import * as z from "zod";
 
@@ -90,16 +90,25 @@ const ClassesCreate = () => {
         }
     };
 
-    const teachers = [
-        { id: "T-001", name: "Alice Johnson" },
-        { id: "T-002", name: "Brian Lee" },
-    ];
-    const subjects = [
-        { id: 1, name: "Mathematics", code: "MATH" },
-        { id: 2, name: "Computer Science", code: "CS" },
-    ];
-    const teachersLoading = false;
-    const subjectsLoading = false;
+    const { query: subjectsQuery, result: subjectsResult } = useList<Subject>({
+        resource: "subjects",
+        pagination: {
+            pageSize: 100,
+        },
+    });
+
+    const { query: teachersQuery, result: teachersResult } = useList<User>({
+        resource: "users",
+        filters: [{ field: "role", operator: "eq", value: "teacher" }],
+        pagination: {
+            pageSize: 100,
+        },
+    });
+
+    const subjectsLoading = subjectsQuery.isLoading;
+    const teachersLoading = teachersQuery.isLoading;
+    const subjects = subjectsResult.data ?? [];
+    const teachers = teachersResult.data ?? [];
 
     return (
         <CreateView className="class-view">
@@ -206,7 +215,7 @@ const ClassesCreate = () => {
                                                                 key={subject.id}
                                                                 value={subject.id.toString()}
                                                             >
-                                                                {subject.name} ({subject.code})
+                                                                {subject.name} ({subject.courseCode})
                                                             </SelectItem>
                                                         ))}
                                                     </SelectContent>

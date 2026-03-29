@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { useTable } from "@refinedev/react-table";
 import { Search } from "lucide-react";
-import { CrudFilter } from "@refinedev/core";
+import { CrudFilter, useNotification } from "@refinedev/core";
 import { Subject } from "@/types";
 import { DEPARTMENT_OPTIONS } from "@/constence";
 import { ListView } from "@/components/refine-ui/views/list-view.tsx";
@@ -23,6 +23,7 @@ import { Badge } from "@/components/ui/badge.tsx";
 const SubjectList = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedDepartment, setSelectedDepartment] = useState("all");
+    const { open } = useNotification();
 
     const subjectTable = useTable<Subject>({
         columns: useMemo<ColumnDef<Subject>[]>(
@@ -68,6 +69,8 @@ const SubjectList = () => {
         },
     });
     const { setFilters } = subjectTable.refineCore;
+    const { tableQuery } = subjectTable.refineCore;
+    const [lastErrorMessage, setLastErrorMessage] = useState<string | null>(null);
 
     useEffect(() => {
         const nextFilters: CrudFilter[] = [];
@@ -90,6 +93,29 @@ const SubjectList = () => {
 
         setFilters(nextFilters, "replace");
     }, [selectedDepartment, searchQuery, setFilters]);
+
+    useEffect(() => {
+        if (!tableQuery.error) return;
+
+        const error = tableQuery.error as { message?: string; statusCode?: number };
+        const status = error.statusCode;
+        const message =
+            status === 403
+                ? "Too many requests"
+                : error.message || "Failed to load subjects";
+
+        if (message === lastErrorMessage) return;
+
+        setLastErrorMessage(message);
+        open?.({
+            type: "error",
+            message,
+            description:
+                status === 403
+                    ? "Please wait a minute and try again."
+                    : "Try again in a moment.",
+        });
+    }, [tableQuery.error, lastErrorMessage, open]);
 
     return (
         <ListView>
