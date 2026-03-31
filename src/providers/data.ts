@@ -2,7 +2,7 @@ import { createDataProvider } from "@refinedev/rest";
 import type { CreateDataProviderOptions } from "@refinedev/rest";
 import type { HttpError } from "@refinedev/core";
 import { BACKEND_BASE_URL } from "@/constence";
-import { CreateResponse, ListResponse, Subject } from "@/types";
+import {CreateResponse, GetOneResponse, ListResponse, Subject} from "@/types";
 
 
 type SubjectApiRow = {
@@ -134,7 +134,19 @@ const options: CreateDataProviderOptions = {
             return payload.data ?? {};
         },
     },
+    getOne: {
+        getEndpoint: ({ resource, id }) => `${resource}/${id}`,
+        mapResponse: async (response) => {
+            if (!response.ok) {
+                throw await buildHttpError(response);
+            }
+            const json: GetOneResponse = await response.json();
+            return json.data ?? {};
+        },
+    },
 };
+
+
 
 const { dataProvider } = createDataProvider(BACKEND_BASE_URL, options);
 
