@@ -6,6 +6,7 @@ import {Card} from "@/components/ui/card.tsx";
 import { Badge } from "@/components/ui/badge.tsx";
 import { Separator } from "@/components/ui/separator.tsx";
 import { Button } from "@/components/ui/button.tsx";
+import { AdvancedImage } from "@cloudinary/react";
 import { bannerPhoto } from "@/lib/cloudinary.ts";
 
 const Show = () => {
@@ -40,17 +41,19 @@ const Show = () => {
     const placeholderUrl = `https://placehold.co/600x400?text=${encodeURIComponent(teacherInitials || 'NA')}`;
 
     const { name, description, status, capacity, bannerUrl, bannerCldPubId, subject, teacher, department } = classDetails;
-    const cloudinaryBanner = bannerCldPubId ? bannerPhoto(bannerCldPubId, name).toURL() : "";
 
     return (
         <ShowView className="class-view class-show">
             <ShowViewHeader resource="classes" title="Class Details" />
 
             <div className="banner">
-                {bannerUrl ? (
-                    <img src={cloudinaryBanner || bannerUrl} alt="Class Banner" />
+                {bannerCldPubId ? (
+                    <AdvancedImage
+                        alt="Class Banner"
+                        cldImg={bannerPhoto(bannerCldPubId ?? '' , name)}
+                    />
                 ) : (
-                    <div className="placeholder"></div>
+                    <div className="placeholder"/>
                 )}
             </div>
 
