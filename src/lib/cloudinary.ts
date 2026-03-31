@@ -13,19 +13,18 @@ const cld = new Cloudinary({ cloud: { cloudName: CLOUDINARY_CLOUD_NAME } });
 export const bannerPhoto = (imageCldPubId: string, name: string) =>
     cld
         .image(imageCldPubId)
-        .resize(fill().width(200).height(300))
+        .resize(fill())
         .delivery(format("auto"))
         .delivery(quality("auto"))
         .delivery(dpr("auto"))
         .overlay(
             source(
-                text(name, new TextStyle("roboto", 42).fontWeight("bold")).textColor(
+                text(name, new TextStyle("roboto", 100).fontWeight("bold")).textColor(
                     "white",
                 ),
             ).position(
                 new Position()
-                    .gravity(compass("south_west"))
-                    .offsetY(0.2)
+                    .gravity(compass("west"))
                     .offsetX(0.02),
             ),
         );

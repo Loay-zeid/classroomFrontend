@@ -47,13 +47,11 @@ const Show = () => {
             <ShowViewHeader resource="classes" title="Class Details" />
 
             <div className="banner">
-                {
-                    bannerUrl ? (
-                        <img src={cloudinaryBanner || bannerUrl} alt={name} />
-                    ) : (
-                        <div className="placeholder"/>
-                    )
-                }
+                {bannerUrl ? (
+                    <img src={cloudinaryBanner || bannerUrl} alt="Class Banner" />
+                ) : (
+                    <div className="placeholder"></div>
+                )}
             </div>
 
             <Card className="details-card">
