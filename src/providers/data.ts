@@ -84,18 +84,27 @@ const options: CreateDataProviderOptions = {
                     if (field === 'department') params.department = value;
                     if (field === 'name' || field === 'code') params.search = value;
                 }
+
+                if (resource === 'classes') {
+                    if (field === 'name') params.search = value;
+                    if (field === 'subject') params.subject = value;
+                    if (field === 'teacher') params.teacher = value;
+                }
             });
 
             return params;
         },
 
 
-        mapResponse: async (response: Response) => {
+        mapResponse: async (response: Response, params) => {
             if (!response.ok) {
                 throw await buildHttpError(response);
             }
             const payload: ListResponse<SubjectApiRow> = await response.clone().json();
-            return (payload.data ?? []).map(mapSubject);
+            if (params.resource === "subjects") {
+                return (payload.data ?? []).map(mapSubject);
+            }
+            return payload.data ?? [];
         },
         getTotalCount: async (response: Response) => {
             if (!response.ok) {
