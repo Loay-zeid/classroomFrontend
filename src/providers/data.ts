@@ -131,7 +131,7 @@ const options: CreateDataProviderOptions = {
                 throw await buildHttpError(response);
             }
             const payload: CreateResponse = await response.json();
-            return payload.data ?? null;
+            return payload.data ?? {};
         },
     },
 };

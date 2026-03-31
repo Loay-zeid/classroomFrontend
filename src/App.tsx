@@ -18,6 +18,7 @@ import SubjectsCreate from "@/Pages/Subjects/create.tsx";
 import SubjectList from "@/Pages/Subjects/list.tsx";
 
 import ClassesCreate from "@/Pages/classes/create.tsx";
+import ClassesShow from "@/Pages/classes/show.tsx";
 import ClassesList from "@/Pages/classes/list.tsx";
 
 import.meta.env.VITE_BACKEND_BASE_URL
@@ -54,6 +55,7 @@ function App() {
                   name: "classes",
                   list: "/classes",
                   create: "/classes/create",
+                  show:'/classes/show/:id',
                   meta: { label: "Classes", icon: <GraduationCap /> },
                 },
 
@@ -76,6 +78,7 @@ function App() {
                   <Route path="classes">
                     <Route index element={<ClassesList />} />
                     <Route path="create" element={<ClassesCreate />} />
+                    <Route path="show/:id" element={<ClassesShow/>} />
                   </Route>
                 </Route>
               </Routes>

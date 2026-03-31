@@ -17,6 +17,7 @@ import {
 import { CreateButton } from "@/components/refine-ui/buttons/create.tsx";
 import { DataTable } from "@/components/refine-ui/data-table/data-table.tsx";
 import { Badge } from "@/components/ui/badge.tsx";
+import {ShowButton} from "@/components/refine-ui/buttons/show.tsx";
 
 const ClassesList = () => {
     const [searchQuery, setSearchQuery] = useState("");
@@ -90,14 +91,14 @@ const ClassesList = () => {
                 },
                 {
                     id: "subject",
-                    accessorFn: (row) => row.subject?.name ?? "—",
+                    accessorFn: (row) => row.subject?.name ?? "N/A",
                     size: 200,
                     header: () => <p className="column-title">Subject</p>,
                     cell: ({ getValue }) => <span>{getValue<string>()}</span>,
                 },
                 {
                     id: "teacher",
-                    accessorFn: (row) => row.teacher?.name ?? "—",
+                    accessorFn: (row) => row.teacher?.name ?? "N/A",
                     size: 200,
                     header: () => <p className="column-title">Teacher</p>,
                     cell: ({ getValue }) => <span>{getValue<string>()}</span>,
@@ -109,6 +110,12 @@ const ClassesList = () => {
                     header: () => <p className="column-title">Capacity</p>,
                     cell: ({ getValue }) => <span>{getValue<number>()}</span>,
                 },
+                {
+                    id: "details",
+                    size: 140,
+                    header: () => <p className="column-title">Details</p>,
+                    cell: ({ row }) => <ShowButton resource="classes" recordItemId={row.original.id} variant="outline" size="sm" >View</ShowButton>
+                }
             ],
             [],
         ),
