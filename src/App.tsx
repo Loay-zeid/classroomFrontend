@@ -51,7 +51,7 @@ function App() {
                 },
                 // Classes resource routes and nav metadata.
                 {
-                  name: "classes ",
+                  name: "classes",
                   list: "/classes",
                   create: "/classes/create",
                   meta: { label: "Classes", icon: <GraduationCap /> },
@@ -74,7 +74,7 @@ function App() {
                     <Route path="create" element={<SubjectsCreate />} />
                   </Route>
                   <Route path="classes">
-                    <Route index element={<ClassesCreate />} />
+                    <Route index element={<ClassesList />} />
                     <Route path="create" element={<ClassesCreate />} />
                   </Route>
                 </Route>
