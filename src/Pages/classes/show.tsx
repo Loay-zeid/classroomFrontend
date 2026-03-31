@@ -3,9 +3,10 @@ import {useShow} from "@refinedev/core";
 import {ClassDetails} from "@/types";
 import {ShowView, ShowViewHeader} from "@/components/refine-ui/views/show-view.tsx";
 import {Card} from "@/components/ui/card.tsx";
-import {Badge} from "@/components/ui/badge.tsx";
-import {Separator} from "@/components/ui/separator.tsx";
-import {Button} from "@/components/ui/button.tsx";
+import { Badge } from "@/components/ui/badge.tsx";
+import { Separator } from "@/components/ui/separator.tsx";
+import { Button } from "@/components/ui/button.tsx";
+import { bannerPhoto } from "@/lib/cloudinary.ts";
 
 const Show = () => {
 
@@ -38,7 +39,8 @@ const Show = () => {
 
     const placeholderUrl = `https://placehold.co/600x400?text=${encodeURIComponent(teacherInitials || 'NA')}`;
 
-    const { name, description, status, capacity, bannerUrl, subject, teacher, department } = classDetails;
+    const { name, description, status, capacity, bannerUrl, bannerCldPubId, subject, teacher, department } = classDetails;
+    const cloudinaryBanner = bannerCldPubId ? bannerPhoto(bannerCldPubId, name).toURL() : "";
 
     return (
         <ShowView className="class-view class-show">
@@ -46,8 +48,11 @@ const Show = () => {
 
             <div className="banner">
                 {
-                    bannerUrl ?  <p>Render Cloudinary's advanced image</p>:
+                    bannerUrl ? (
+                        <img src={cloudinaryBanner || bannerUrl} alt={name} />
+                    ) : (
                         <div className="placeholder"/>
+                    )
                 }
             </div>
 
