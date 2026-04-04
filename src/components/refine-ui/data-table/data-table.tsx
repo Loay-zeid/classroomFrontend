@@ -8,6 +8,7 @@ import { Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { DataTablePagination } from "@/components/refine-ui/data-table/data-table-pagination";
+import { DataTableSorter } from "@/components/refine-ui/data-table/data-table-sorter";
 import {
   Table,
   TableBody,
@@ -80,7 +81,10 @@ export function DataTable<TData extends BaseRecord>({
 
   return (
     <div className={cn("flex", "flex-col", "flex-1", "gap-4")}>
-      <div ref={tableContainerRef} className={cn("rounded-md", "border")}>
+      <div
+        ref={tableContainerRef}
+        className={cn("rounded-md", "border", "overflow-x-auto")}
+      >
         <Table ref={tableRef} style={{ tableLayout: "fixed", width: "100%" }}>
           <TableHeader>
             {getHeaderGroups().map((headerGroup) => (
@@ -103,6 +107,9 @@ export function DataTable<TData extends BaseRecord>({
                           {flexRender(
                             header.column.columnDef.header,
                             header.getContext()
+                          )}
+                          {header.column.getCanSort() && (
+                            <DataTableSorter column={header.column} />
                           )}
                         </div>
                       )}

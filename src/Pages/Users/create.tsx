@@ -21,21 +21,25 @@ import {
 } from "@/components/ui/select";
 import { CreateView } from "@/components/refine-ui/views/create-view";
 import { Breadcrumb } from "@/components/refine-ui/layout/breadcrumb";
-import { useBack, useList } from "@refinedev/core";
+import { useBack } from "@refinedev/core";
 import { Loader2 } from "lucide-react";
-import { subjectSchema } from "@/lib/schema";
-import { Department } from "@/types";
+import { USER_ROLES } from "@/constence";
+import { userSchema } from "@/lib/schema";
 import * as z from "zod";
 
-const SubjectsCreate = () => {
+const UsersCreate = () => {
   const back = useBack();
-  type SubjectFormValues = z.infer<typeof subjectSchema>;
+  type UserFormValues = z.infer<typeof userSchema>;
 
-  const form = useForm<SubjectFormValues>({
-    resolver: zodResolver(subjectSchema),
+  const form = useForm<UserFormValues>({
+    resolver: zodResolver(userSchema),
     refineCoreProps: {
-      resource: "subjects",
+      resource: "users",
       action: "create",
+    },
+    defaultValues: {
+      id: "",
+      role: USER_ROLES.STUDENT,
     },
   });
 
@@ -47,23 +51,13 @@ const SubjectsCreate = () => {
     control,
   } = form;
 
-  const { result: departmentsResult, query: departmentsQuery } = useList<Department>({
-    resource: "departments",
-    pagination: {
-      pageSize: 100,
-    },
-  });
-
-  const departmentsLoading = departmentsQuery.isLoading;
-  const departments = departmentsResult.data ?? [];
-
-  const onSubmit = async (values: SubjectFormValues) => {
+  const onSubmit = async (values: UserFormValues) => {
     try {
       await onFinish(values);
     } catch (error) {
-      console.error("Error creating subject:", error);
+      console.error("Error creating user:", error);
       setError("root", {
-        message: "Failed to create subject. Please try again.",
+        message: "Failed to create user. Please try again.",
       });
       throw error;
     }
@@ -73,9 +67,9 @@ const SubjectsCreate = () => {
     <CreateView>
       <Breadcrumb />
 
-      <h1 className="page-title">Create Subject</h1>
+      <h1 className="page-title">Create User</h1>
       <div className="intro-row">
-        <p>Provide the required information below to add a subject.</p>
+        <p>Provide the required information below to add a user.</p>
         <Button onClick={() => back()}>Go Back</Button>
       </div>
 
@@ -101,14 +95,14 @@ const SubjectsCreate = () => {
                 )}
                 <FormField
                   control={control}
-                  name="name"
+                  name="id"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        Name <span className="text-orange-600">*</span>
+                        User ID <span className="text-orange-600">*</span>
                       </FormLabel>
                       <FormControl>
-                        <Input placeholder="Calculus I" {...field} />
+                        <Input placeholder="user_001" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -117,31 +111,54 @@ const SubjectsCreate = () => {
 
                 <FormField
                   control={control}
-                  name="departmentId"
+                  name="name"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        Department <span className="text-orange-600">*</span>
+                        Name <span className="text-orange-600">*</span>
                       </FormLabel>
-                      <Select
-                        onValueChange={(value) => field.onChange(Number(value))}
-                        value={field.value?.toString()}
-                        disabled={departmentsLoading}
-                      >
+                      <FormControl>
+                        <Input placeholder="Jane Doe" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        Email <span className="text-orange-600">*</span>
+                      </FormLabel>
+                      <FormControl>
+                        <Input type="email" placeholder="jane@school.com" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={control}
+                  name="role"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        Role <span className="text-orange-600">*</span>
+                      </FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select a department" />
+                            <SelectValue placeholder="Select role" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {departments.map((department) => (
-                            <SelectItem
-                              key={department.id}
-                              value={department.id.toString()}
-                            >
-                              {department.name}
-                            </SelectItem>
-                          ))}
+                          <SelectItem value={USER_ROLES.ADMIN}>Admin</SelectItem>
+                          <SelectItem value={USER_ROLES.TEACHER}>Teacher</SelectItem>
+                          <SelectItem value={USER_ROLES.STUDENT}>Student</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -160,11 +177,11 @@ const SubjectsCreate = () => {
                 >
                   {isSubmitting ? (
                     <div className="flex gap-1">
-                      <span>Creating Subject...</span>
+                      <span>Creating User...</span>
                       <Loader2 className="inline-block ml-2 animate-spin" />
                     </div>
                   ) : (
-                    "Create Subject"
+                    "Create User"
                   )}
                 </Button>
               </form>
@@ -176,4 +193,4 @@ const SubjectsCreate = () => {
   );
 };
 
-export default SubjectsCreate;
+export default UsersCreate;

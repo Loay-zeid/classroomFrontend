@@ -77,7 +77,10 @@ export const CLOUDINARY_UPLOAD_URL = requireUrlEnv(
     "VITE_CLOUDINARY_UPLOAD_URL",
 );
 export const CLOUDINARY_CLOUD_NAME = requireEnv("VITE_CLOUDINARY_CLOUD_NAME");
-export const BACKEND_BASE_URL = requireUrlEnv("VITE_BACKEND_BASE_URL");
+export const BACKEND_BASE_URL = requireUrlEnv("VITE_BACKEND_BASE_URL").replace(
+    /\/+$/,
+    ""
+);
 
 export const BASE_URL = requireUrlEnv("VITE_API_URL");
 export const ACCESS_TOKEN_KEY = requireEnv("VITE_ACCESS_TOKEN_KEY");

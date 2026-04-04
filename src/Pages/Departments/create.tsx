@@ -12,29 +12,21 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { CreateView } from "@/components/refine-ui/views/create-view";
 import { Breadcrumb } from "@/components/refine-ui/layout/breadcrumb";
-import { useBack, useList } from "@refinedev/core";
+import { useBack } from "@refinedev/core";
 import { Loader2 } from "lucide-react";
-import { subjectSchema } from "@/lib/schema";
-import { Department } from "@/types";
+import { departmentSchema } from "@/lib/schema";
 import * as z from "zod";
 
-const SubjectsCreate = () => {
+const DepartmentsCreate = () => {
   const back = useBack();
-  type SubjectFormValues = z.infer<typeof subjectSchema>;
+  type DepartmentFormValues = z.infer<typeof departmentSchema>;
 
-  const form = useForm<SubjectFormValues>({
-    resolver: zodResolver(subjectSchema),
+  const form = useForm<DepartmentFormValues>({
+    resolver: zodResolver(departmentSchema),
     refineCoreProps: {
-      resource: "subjects",
+      resource: "departments",
       action: "create",
     },
   });
@@ -47,23 +39,13 @@ const SubjectsCreate = () => {
     control,
   } = form;
 
-  const { result: departmentsResult, query: departmentsQuery } = useList<Department>({
-    resource: "departments",
-    pagination: {
-      pageSize: 100,
-    },
-  });
-
-  const departmentsLoading = departmentsQuery.isLoading;
-  const departments = departmentsResult.data ?? [];
-
-  const onSubmit = async (values: SubjectFormValues) => {
+  const onSubmit = async (values: DepartmentFormValues) => {
     try {
       await onFinish(values);
     } catch (error) {
-      console.error("Error creating subject:", error);
+      console.error("Error creating department:", error);
       setError("root", {
-        message: "Failed to create subject. Please try again.",
+        message: "Failed to create department. Please try again.",
       });
       throw error;
     }
@@ -73,9 +55,9 @@ const SubjectsCreate = () => {
     <CreateView>
       <Breadcrumb />
 
-      <h1 className="page-title">Create Subject</h1>
+      <h1 className="page-title">Create Department</h1>
       <div className="intro-row">
-        <p>Provide the required information below to add a subject.</p>
+        <p>Provide the required information below to add a department.</p>
         <Button onClick={() => back()}>Go Back</Button>
       </div>
 
@@ -101,14 +83,14 @@ const SubjectsCreate = () => {
                 )}
                 <FormField
                   control={control}
-                  name="name"
+                  name="code"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        Name <span className="text-orange-600">*</span>
+                        Code <span className="text-orange-600">*</span>
                       </FormLabel>
                       <FormControl>
-                        <Input placeholder="Calculus I" {...field} />
+                        <Input placeholder="CS" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -117,33 +99,32 @@ const SubjectsCreate = () => {
 
                 <FormField
                   control={control}
-                  name="departmentId"
+                  name="name"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        Department <span className="text-orange-600">*</span>
+                        Name <span className="text-orange-600">*</span>
                       </FormLabel>
-                      <Select
-                        onValueChange={(value) => field.onChange(Number(value))}
-                        value={field.value?.toString()}
-                        disabled={departmentsLoading}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select a department" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {departments.map((department) => (
-                            <SelectItem
-                              key={department.id}
-                              value={department.id.toString()}
-                            >
-                              {department.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <FormControl>
+                        <Input placeholder="Computer Science" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Optional department description"
+                          {...field}
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -160,11 +141,11 @@ const SubjectsCreate = () => {
                 >
                   {isSubmitting ? (
                     <div className="flex gap-1">
-                      <span>Creating Subject...</span>
+                      <span>Creating Department...</span>
                       <Loader2 className="inline-block ml-2 animate-spin" />
                     </div>
                   ) : (
-                    "Create Subject"
+                    "Create Department"
                   )}
                 </Button>
               </form>
@@ -176,4 +157,4 @@ const SubjectsCreate = () => {
   );
 };
 
-export default SubjectsCreate;
+export default DepartmentsCreate;

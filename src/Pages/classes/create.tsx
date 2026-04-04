@@ -21,7 +21,6 @@ import {
 } from "@/components/ui/select";
 import { CreateView } from "@/components/refine-ui/views/create-view";
 import { Breadcrumb } from "@/components/refine-ui/layout/breadcrumb";
-import { Textarea } from "@/components/ui/textarea";
 import { useBack, useList } from "@refinedev/core";
 import { Loader2 } from "lucide-react";
 import { classSchema } from "@/lib/schema";
@@ -42,6 +41,7 @@ const ClassesCreate = () => {
         },
         defaultValues: {
             status: "active",
+            schedules: [{ day: "", startTime: "", endTime: "" }],
         },
 
     });
@@ -55,7 +55,6 @@ const ClassesCreate = () => {
     } = form;
 
     const bannerPublicId = form.watch("bannerCldPubId");
-    
 
     const setBannerImage = (
         file: UploadWidgetValue | null,
@@ -201,7 +200,7 @@ const ClassesCreate = () => {
                                                 </FormLabel>
                                                 <Select
                                                     onValueChange={(value) => field.onChange(Number(value))}
-                                                    value={field.value?.toString()}
+                                                    value={field.value ? field.value.toString() : ""}
                                                     disabled={subjectsLoading}
                                                 >
                                                     <FormControl>
@@ -235,7 +234,7 @@ const ClassesCreate = () => {
                                                 </FormLabel>
                                                 <Select
                                                     onValueChange={field.onChange}
-                                                    value={field.value?.toString()}
+                                                    value={field.value ? field.value.toString() : ""}
                                                     disabled={teachersLoading}
                                                 >
                                                     <FormControl>
@@ -294,7 +293,10 @@ const ClassesCreate = () => {
                                                 <FormLabel>
                                                     Status <span className="text-orange-600">*</span>
                                                 </FormLabel>
-                                                <Select onValueChange={field.onChange} value={field.value}>
+                                                <Select
+                                                    onValueChange={field.onChange}
+                                                    value={field.value ?? "active"}
+                                                >
                                                     <FormControl>
                                                         <SelectTrigger className="w-full">
                                                             <SelectValue placeholder="Select status" />
@@ -320,15 +322,61 @@ const ClassesCreate = () => {
                                                 Description <span className="text-orange-600">*</span>
                                             </FormLabel>
                                             <FormControl>
-                                                <Textarea
-                                                    placeholder="Brief description about the class"
-                                                    {...field}
-                                                />
+                                                <Input placeholder="Brief description about the class" {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
                                     )}
                                 />
+
+                                <FormField
+                                    control={control}
+                                    name="schedules.0.day"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>
+                                                Schedule Day <span className="text-orange-600">*</span>
+                                            </FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="Monday" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                <div className="grid sm:grid-cols-2 gap-4">
+                                    <FormField
+                                        control={control}
+                                        name="schedules.0.startTime"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>
+                                                    Start Time <span className="text-orange-600">*</span>
+                                                </FormLabel>
+                                                <FormControl>
+                                                    <Input type="time" {...field} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={control}
+                                        name="schedules.0.endTime"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>
+                                                    End Time <span className="text-orange-600">*</span>
+                                                </FormLabel>
+                                                <FormControl>
+                                                    <Input type="time" {...field} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
 
                                 <Separator />
 

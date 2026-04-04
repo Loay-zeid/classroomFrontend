@@ -18,11 +18,21 @@ import { CreateButton } from "@/components/refine-ui/buttons/create.tsx";
 import { DataTable } from "@/components/refine-ui/data-table/data-table.tsx";
 import { Badge } from "@/components/ui/badge.tsx";
 import {ShowButton} from "@/components/refine-ui/buttons/show.tsx";
+import { EditButton } from "@/components/refine-ui/buttons/edit.tsx";
+import { useSearchParams } from "react-router";
 
 const ClassesList = () => {
-    const [searchQuery, setSearchQuery] = useState("");
-    const [selectedSubject, setSelectedSubject] = useState("all");
-    const [selectedTeacher, setSelectedTeacher] = useState("all");
+    const [searchParams, setSearchParams] = useSearchParams();
+    const [searchQuery, setSearchQuery] = useState(
+        searchParams.get("q") ?? ""
+    );
+    const [selectedSubject, setSelectedSubject] = useState(
+        searchParams.get("subject") ?? "all"
+    );
+    const [selectedTeacher, setSelectedTeacher] = useState(
+        searchParams.get("teacher") ?? "all"
+    );
+    const [debouncedSearch, setDebouncedSearch] = useState("");
     const { open } = useNotification();
 
     const { result: subjectsResult } = useList<Subject>({
@@ -73,6 +83,7 @@ const ClassesList = () => {
                     id: "name",
                     accessorKey: "name",
                     size: 220,
+                    enableSorting: true,
                     header: () => <p className="column-title">Class Name</p>,
                     cell: ({ getValue }) => (
                         <span className="text-foreground">{getValue<string>()}</span>
@@ -82,6 +93,7 @@ const ClassesList = () => {
                     id: "status",
                     accessorKey: "status",
                     size: 120,
+                    enableSorting: true,
                     header: () => <p className="column-title">Status</p>,
                     cell: ({ getValue }) => {
                         const status = String(getValue<string>() ?? "");
@@ -107,27 +119,104 @@ const ClassesList = () => {
                     id: "capacity",
                     accessorKey: "capacity",
                     size: 120,
+                    enableSorting: true,
                     header: () => <p className="column-title">Capacity</p>,
                     cell: ({ getValue }) => <span>{getValue<number>()}</span>,
                 },
                 {
-                    id: "details",
-                    size: 140,
-                    header: () => <p className="column-title">Details</p>,
-                    cell: ({ row }) => <ShowButton resource="classes" recordItemId={row.original.id} variant="outline" size="sm" >View</ShowButton>
+                    id: "capacityStatus",
+                    accessorKey: "capacity",
+                    size: 160,
+                    header: () => <p className="column-title">Capacity Status</p>,
+                    cell: ({ getValue }) => {
+                        const capacity = Number(getValue<number>() ?? 0);
+                        const status =
+                            capacity <= 10 ? "Low" : capacity <= 25 ? "Medium" : "Healthy";
+                        const variant =
+                            status === "Low" ? "destructive" : status === "Medium" ? "secondary" : "default";
+                        return <Badge variant={variant}>{status}</Badge>;
+                    },
+                },
+                {
+                    id: "actions",
+                    size: 200,
+                    header: () => <p className="column-title">Actions</p>,
+                    cell: ({ row }) => (
+                        <div className="flex items-center gap-2">
+                            <ShowButton resource="classes" recordItemId={row.original.id} variant="outline" size="sm" >
+                                View
+                            </ShowButton>
+                            <EditButton resource="classes" recordItemId={row.original.id} variant="outline" size="sm" />
+                        </div>
+                    )
                 }
             ],
             [],
         ),
+        enableColumnPinning: true,
+        initialState: {
+            columnPinning: {
+                right: ["actions"],
+            },
+        },
         refineCoreProps: {
             resource: "classes",
             pagination: { pageSize: 10, mode: "server" },
+            sorters: { mode: "server" },
         },
     });
 
-    const { setFilters } = classesTable.refineCore;
+    const { setFilters, setSorters, sorters } = classesTable.refineCore;
     const { tableQuery } = classesTable.refineCore;
     const [lastErrorMessage, setLastErrorMessage] = useState<string | null>(null);
+
+    useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            setDebouncedSearch(searchQuery.trim());
+        }, 350);
+
+        return () => clearTimeout(timeoutId);
+    }, [searchQuery]);
+
+    useEffect(() => {
+        const urlQuery = searchParams.get("q") ?? "";
+        const urlSubject = searchParams.get("subject") ?? "all";
+        const urlTeacher = searchParams.get("teacher") ?? "all";
+
+        if (urlQuery !== searchQuery) {
+            setSearchQuery(urlQuery);
+        }
+
+        if (urlSubject !== selectedSubject) {
+            setSelectedSubject(urlSubject);
+        }
+
+        if (urlTeacher !== selectedTeacher) {
+            setSelectedTeacher(urlTeacher);
+        }
+
+        const sortField = searchParams.get("sort");
+        const sortOrder = searchParams.get("order") as "asc" | "desc" | null;
+        const currentSorter = sorters?.[0];
+
+        if (sortField && sortOrder) {
+            if (
+                currentSorter?.field !== sortField ||
+                currentSorter?.order !== sortOrder
+            ) {
+                setSorters([{ field: sortField, order: sortOrder }], "replace");
+            }
+        } else if (currentSorter) {
+            setSorters([], "replace");
+        }
+    }, [
+        searchParams,
+        searchQuery,
+        selectedSubject,
+        selectedTeacher,
+        setSorters,
+        sorters,
+    ]);
 
     useEffect(() => {
         const nextFilters: CrudFilter[] = [];
@@ -148,16 +237,57 @@ const ClassesList = () => {
             });
         }
 
-        if (searchQuery.trim()) {
+        if (debouncedSearch) {
             nextFilters.push({
                 field: "name",
                 operator: "contains",
-                value: searchQuery.trim(),
+                value: debouncedSearch,
             });
         }
 
         setFilters(nextFilters, "replace");
-    }, [selectedSubject, selectedTeacher, searchQuery, setFilters]);
+    }, [selectedSubject, selectedTeacher, debouncedSearch, setFilters]);
+
+    useEffect(() => {
+        const nextParams = new URLSearchParams(searchParams);
+        if (debouncedSearch) {
+            nextParams.set("q", debouncedSearch);
+        } else {
+            nextParams.delete("q");
+        }
+
+        if (selectedSubject !== "all") {
+            nextParams.set("subject", selectedSubject);
+        } else {
+            nextParams.delete("subject");
+        }
+
+        if (selectedTeacher !== "all") {
+            nextParams.set("teacher", selectedTeacher);
+        } else {
+            nextParams.delete("teacher");
+        }
+
+        const currentSorter = sorters?.[0];
+        if (currentSorter?.field) {
+            nextParams.set("sort", currentSorter.field);
+            nextParams.set("order", currentSorter.order);
+        } else {
+            nextParams.delete("sort");
+            nextParams.delete("order");
+        }
+
+        if (nextParams.toString() !== searchParams.toString()) {
+            setSearchParams(nextParams, { replace: true });
+        }
+    }, [
+        debouncedSearch,
+        selectedSubject,
+        selectedTeacher,
+        sorters,
+        searchParams,
+        setSearchParams,
+    ]);
 
     useEffect(() => {
         if (!tableQuery.error) return;

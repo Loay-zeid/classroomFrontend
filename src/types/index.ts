@@ -1,9 +1,10 @@
 export type Subject = {
     id: number;
     name: string;
-    courseCode: string;
-    briefDescription: string;
+    courseCode?: string;
+    briefDescription?: string;
     department: string;
+    departmentId?: number;
     createdAt?: string;
 };
 
@@ -94,6 +95,12 @@ export type Department = {
     id: number;
     name: string;
     description: string;
+    code?: string;
+    subjectsCount?: number;
+    classesCount?: number;
+    enrollmentsCount?: number;
+    createdAt?: string;
+    created_at?: string;
 };
 
 export type ClassDetails = {

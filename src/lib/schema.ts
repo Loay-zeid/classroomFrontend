@@ -11,15 +11,23 @@ export const facultySchema = z.object({
     imageCldPubId: z.string().optional(),
 });
 
+export const userSchema = z.object({
+    id: z.string().min(3, "User ID must be at least 3 characters"),
+    name: z.string().min(2, "Name must be at least 2 characters"),
+    email: z.string().email("Invalid email address"),
+    role: z.enum(["admin", "teacher", "student"], {
+        required_error: "Please select a role",
+    }),
+});
+
 export const subjectSchema = z.object({
     name: z.string().min(3, "Subject name must be at least 3 characters"),
-    code: z.string().min(5, "Subject code must be at least 5 characters"),
-    description: z
-        .string()
-        .min(5, "Subject description must be at least 5 characters"),
-    department: z
-        .string()
-        .min(2, "Subject department must be at least 2 characters"),
+    departmentId: z.coerce
+        .number({
+            required_error: "Department is required",
+            invalid_type_error: "Department is required",
+        })
+        .min(1, "Department is required"),
 });
 
 const scheduleSchema = z.object({
@@ -56,8 +64,7 @@ export const classSchema = z.object({
     bannerCldPubId: z
         .string({ required_error: "Banner reference is required" })
         .min(1, "Banner reference is required"),
-    inviteCode: z.string().optional(),
-    schedules: z.array(scheduleSchema).optional(),
+    schedules: z.array(scheduleSchema).min(1, "At least one schedule is required"),
 });
 
 export const enrollmentSchema = z.object({
@@ -68,4 +75,10 @@ export const enrollmentSchema = z.object({
         })
         .min(1, "Class ID is required"),
     studentId: z.string().min(1, "Student ID is required"),
+});
+
+export const departmentSchema = z.object({
+    code: z.string().min(2, "Department code must be at least 2 characters"),
+    name: z.string().min(2, "Department name must be at least 2 characters"),
+    description: z.string().optional(),
 });

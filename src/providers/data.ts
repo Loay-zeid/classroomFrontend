@@ -14,6 +14,7 @@ type SubjectApiRow = {
     briefDescription?: string;
     department?: unknown;
     departments?: unknown;
+    departmentId?: number;
     created_at?: string;
     createdAt?: string;
 };
@@ -46,6 +47,7 @@ const mapSubject = (row: SubjectApiRow): Subject => ({
     courseCode: row.courseCode ?? row.code ?? "",
     briefDescription: row.briefDescription ?? row.description ?? "",
     department: (toDepartmentName(row.department) || toDepartmentName(row.departments) || "") as Subject["department"],
+    departmentId: row.departmentId,
     createdAt: row.createdAt ?? row.created_at,
 });
 
@@ -70,11 +72,17 @@ const options: CreateDataProviderOptions = {
     getList: {
         getEndpoint: ({ resource }) => resource,
 
-        buildQueryParams: async ({ resource, pagination, filters }) => {
+        buildQueryParams: async ({ resource, pagination, filters, sorters }) => {
             const page = pagination?.currentPage ?? 1;
             const pageSize = pagination?.pageSize ?? 10;
 
             const params: Record<string, string | number> = { page, limit: pageSize };
+
+            const sorter = sorters?.[0];
+            if (sorter?.field) {
+                params.sortBy = sorter.field;
+                params.order = sorter.order ?? "asc";
+            }
 
             filters?.forEach((filter) => {
                 const field = 'field' in filter ? filter.field : '';
@@ -82,13 +90,30 @@ const options: CreateDataProviderOptions = {
 
                 if (resource === 'subjects') {
                     if (field === 'department') params.department = value;
+                    if (field === 'departmentId') params.departmentId = value;
                     if (field === 'name' || field === 'code') params.search = value;
                 }
 
                 if (resource === 'classes') {
                     if (field === 'name') params.search = value;
                     if (field === 'subject') params.subject = value;
+                    if (field === 'subjectId') params.subjectId = value;
                     if (field === 'teacher') params.teacher = value;
+                }
+
+                if (resource === 'users') {
+                    if (field === 'name' || field === 'email') params.search = value;
+                    if (field === 'role') params.role = value;
+                }
+
+                if (resource === 'departments') {
+                    if (field === 'name') params.search = value;
+                }
+
+                if (resource === 'enrollments') {
+                    if (field === 'search') params.search = value;
+                    if (field === 'classId') params.classId = value;
+                    if (field === 'studentId') params.studentId = value;
                 }
             });
 
@@ -134,6 +159,17 @@ const options: CreateDataProviderOptions = {
             return payload.data ?? {};
         },
     },
+    update: {
+        getEndpoint: ({ resource, id }) => `${resource}/${id}`,
+        buildBodyParams: async ({ variables }) => variables,
+        mapResponse: async (response: Response) => {
+            if (!response.ok) {
+                throw await buildHttpError(response);
+            }
+            const payload: CreateResponse = await response.json();
+            return payload.data ?? {};
+        },
+    },
     getOne: {
         getEndpoint: ({ resource, id }) => `${resource}/${id}`,
         mapResponse: async (response) => {
@@ -141,6 +177,14 @@ const options: CreateDataProviderOptions = {
                 throw await buildHttpError(response);
             }
             const json: GetOneResponse = await response.json();
+            if (response.ok && json.data && typeof json.data === "object") {
+                if ((json.data as { id?: unknown }).id && (json.data as { name?: unknown }).name) {
+                    // Keep subject detail shape consistent with list mapping.
+                    if ((json.data as { department?: unknown }).department) {
+                        return mapSubject(json.data as SubjectApiRow);
+                    }
+                }
+            }
             return json.data ?? {};
         },
     },
