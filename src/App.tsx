@@ -1,4 +1,4 @@
-import { Authenticated, Refine } from "@refinedev/core";
+import { Authenticated, Refine, useGetIdentity } from "@refinedev/core";
 import { DevtoolsPanel, DevtoolsProvider } from "@refinedev/devtools";
 import { RefineKbar, RefineKbarProvider } from "@refinedev/kbar";
 import routerProvider, {
@@ -12,6 +12,7 @@ import { useNotificationProvider } from "./components/refine-ui/notification/use
 import { ThemeProvider } from "./components/refine-ui/theme/theme-provider";
 import { dataProvider } from "./providers/data";
 import Dashboard from "@/Pages/Dashboard.tsx";
+import StudentDashboard from "@/Pages/StudentDashboard.tsx";
 import {BookOpen, ClipboardList, GraduationCap, Home, Users, Building2} from "lucide-react";
 import { Layout } from "@/components/refine-ui/layout/layout.tsx";
 import SubjectsCreate from "@/Pages/Subjects/create.tsx";
@@ -38,6 +39,14 @@ import EnrollmentsList from "@/Pages/Enrollments/list.tsx";
 
 import.meta.env.VITE_BACKEND_BASE_URL
 
+const RoleDashboard = () => {
+  const { data: user } = useGetIdentity<{ role?: string }>();
+  if (user?.role === "student") {
+    return <StudentDashboard />;
+  }
+  return <Dashboard />;
+};
+
 function App() {
   return (
     <BrowserRouter>
@@ -57,7 +66,7 @@ function App() {
               resources={[
                 {
                   name: "dashboard",
-                  list: "/",
+                  list: "/dashboard",
                   meta: { label: "Home", icon: <Home /> },
                 },
                 {
@@ -111,7 +120,7 @@ function App() {
                     </Authenticated>
                   }
                 >
-                  <Route path="/" element={<Dashboard />} />
+                  <Route path="/dashboard" element={<RoleDashboard />} />
 
                   <Route path="subjects">
                     <Route index element={<SubjectList />} />
@@ -141,6 +150,7 @@ function App() {
                     <Route index element={<EnrollmentsList />} />
                   </Route>
                 </Route>
+                <Route path="/" element={<Navigate to="/login" replace />} />
                 <Route path="/login" element={<SignInForm />} />
                 <Route path="/register" element={<SignUpForm />} />
               </Routes>

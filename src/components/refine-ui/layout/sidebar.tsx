@@ -25,6 +25,7 @@ import {
   useLink,
   useMenu,
   useRefineOptions,
+  useGetIdentity,
   type TreeMenuItem,
 } from "@refinedev/core";
 import { ChevronRight, ListIcon } from "lucide-react";
@@ -33,6 +34,39 @@ import React from "react";
 export function Sidebar() {
   const { open } = useShadcnSidebar();
   const { menuItems, selectedKey } = useMenu();
+  const { data: user } = useGetIdentity<{ role?: string }>();
+  const role = user?.role ?? "guest";
+
+  const filteredMenuItems = React.useMemo(() => {
+    if (role !== "student") {
+      return menuItems;
+    }
+
+    const allowed = new Set([
+      "dashboard",
+      "subjects",
+      "classes",
+      "enrollments",
+    ]);
+
+    const filterItems = (items: TreeMenuItem[]): TreeMenuItem[] =>
+      items.reduce<TreeMenuItem[]>((acc, item) => {
+        if (item.children && item.children.length > 0) {
+          const filteredChildren = filterItems(item.children);
+          if (filteredChildren.length > 0) {
+            acc.push({ ...item, children: filteredChildren });
+          }
+          return acc;
+        }
+
+        if (allowed.has(item.name)) {
+          acc.push(item);
+        }
+        return acc;
+      }, []);
+
+    return filterItems(menuItems);
+  }, [menuItems, role]);
 
   return (
     <ShadcnSidebar collapsible="icon" className={cn("border-none")}>
@@ -55,7 +89,7 @@ export function Sidebar() {
           }
         )}
       >
-        {menuItems.map((item: TreeMenuItem) => (
+        {filteredMenuItems.map((item: TreeMenuItem) => (
           <SidebarItem
             key={item.key || item.name}
             item={item}

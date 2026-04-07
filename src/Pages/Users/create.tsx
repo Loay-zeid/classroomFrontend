@@ -56,8 +56,17 @@ const UsersCreate = () => {
       await onFinish(values);
     } catch (error) {
       console.error("Error creating user:", error);
+      const status =
+        (error as { statusCode?: number; status?: number })?.statusCode ??
+        (error as { statusCode?: number; status?: number })?.status;
+      const message =
+        status === 403
+          ? "You do not have permission to create users."
+          : status === 401
+          ? "Your session expired. Please sign in again."
+          : "Failed to create user. Please try again.";
       setError("root", {
-        message: "Failed to create user. Please try again.",
+        message,
       });
       throw error;
     }

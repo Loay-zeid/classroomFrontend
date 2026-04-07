@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { useTable } from "@refinedev/react-table";
 import { Search } from "lucide-react";
-import { CrudFilter, useNotification } from "@refinedev/core";
+import { CrudFilter, useGetIdentity, useNotification } from "@refinedev/core";
 import dayjs from "dayjs";
 import { Subject } from "@/types";
 import { DEPARTMENT_OPTIONS } from "@/constence";
@@ -25,6 +25,9 @@ import { ShowButton } from "@/components/refine-ui/buttons/show.tsx";
 import { useSearchParams } from "react-router";
 
 const SubjectList = () => {
+    const { data: currentUser } = useGetIdentity<{ role?: string }>();
+    const canManageSubjects =
+        currentUser?.role === "admin" || currentUser?.role === "teacher";
     const [searchParams, setSearchParams] = useSearchParams();
     const [searchQuery, setSearchQuery] = useState(
         searchParams.get("q") ?? ""
@@ -85,17 +88,19 @@ const SubjectList = () => {
                                 size="sm"
                                 variant="outline"
                             />
-                            <EditButton
-                                resource="subjects"
-                                recordItemId={row.original.id}
-                                size="sm"
-                                variant="outline"
-                            />
+                            {canManageSubjects ? (
+                                <EditButton
+                                    resource="subjects"
+                                    recordItemId={row.original.id}
+                                    size="sm"
+                                    variant="outline"
+                                />
+                            ) : null}
                         </div>
                     ),
                 },
             ],
-            [],
+            [canManageSubjects],
         ),
         enableColumnPinning: true,
         initialState: {
@@ -254,7 +259,7 @@ const SubjectList = () => {
                             ))}
                         </SelectContent>
                     </Select>
-                    <CreateButton />
+                    {canManageSubjects ? <CreateButton /> : null}
                 </div>
             </div>
             <DataTable table={subjectTable} />

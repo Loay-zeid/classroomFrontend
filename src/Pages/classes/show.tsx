@@ -116,6 +116,7 @@ const Show = () => {
         try {
             const response = await fetch(
                 `${apiBaseUrl}/classes/${classDetails.id}/enrollments`,
+                { credentials: "include" }
             );
 
             if (!response.ok) {
@@ -240,6 +241,7 @@ const Show = () => {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ studentId: enrollStudentId }),
+                    credentials: "include",
                 },
             );
 
@@ -299,6 +301,7 @@ const Show = () => {
                     inviteCode: inviteCodeInput.trim(),
                     studentId: joinStudentId,
                 }),
+                credentials: "include",
             });
 
             if (!response.ok) {
@@ -331,7 +334,7 @@ const Show = () => {
         try {
             const response = await fetch(
                 `${apiBaseUrl}/classes/${classDetails.id}/enrollments/${studentId}`,
-                { method: "DELETE" },
+                { method: "DELETE", credentials: "include" },
             );
 
             if (!response.ok) {

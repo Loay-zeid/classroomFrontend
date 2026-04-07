@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { useTable } from "@refinedev/react-table";
-import { CrudFilter, useNotification } from "@refinedev/core";
+import { CrudFilter, useGetIdentity, useNotification } from "@refinedev/core";
 import { Search } from "lucide-react";
 import dayjs from "dayjs";
 import { Department } from "@/types";
@@ -16,6 +16,8 @@ import { Input } from "@/components/ui/input";
 
 const DepartmentsList = () => {
   const { open } = useNotification();
+  const { data: currentUser } = useGetIdentity<{ role?: string }>();
+  const isAdmin = currentUser?.role === "admin";
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [lastErrorMessage, setLastErrorMessage] = useState<string | null>(null);
@@ -87,17 +89,19 @@ const DepartmentsList = () => {
                 size="sm"
                 variant="outline"
               />
-              <EditButton
-                resource="departments"
-                recordItemId={row.original.id}
-                size="sm"
-                variant="outline"
-              />
+              {isAdmin ? (
+                <EditButton
+                  resource="departments"
+                  recordItemId={row.original.id}
+                  size="sm"
+                  variant="outline"
+                />
+              ) : null}
             </div>
           ),
         },
       ],
-      []
+      [isAdmin]
     ),
     enableColumnPinning: true,
     initialState: {
@@ -178,7 +182,7 @@ const DepartmentsList = () => {
           />
         </div>
         <div className="flex w-full justify-end sm:w-auto">
-          <CreateButton resource="departments" />
+          {isAdmin ? <CreateButton resource="departments" /> : null}
         </div>
       </div>
       <DataTable table={departmentsTable} />

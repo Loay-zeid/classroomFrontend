@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { useTable } from "@refinedev/react-table";
 import { Search } from "lucide-react";
-import { CrudFilter, useList, useNotification } from "@refinedev/core";
+import { CrudFilter, useGetIdentity, useList, useNotification } from "@refinedev/core";
 import { ClassDetails, Subject, User } from "@/types";
 import { ListView } from "@/components/refine-ui/views/list-view.tsx";
 import { Breadcrumb } from "@/components/refine-ui/layout/breadcrumb.tsx";
@@ -34,6 +34,9 @@ const ClassesList = () => {
     );
     const [debouncedSearch, setDebouncedSearch] = useState("");
     const { open } = useNotification();
+    const { data: currentUser } = useGetIdentity<{ role?: string }>();
+    const canManageClasses =
+        currentUser?.role === "admin" || currentUser?.role === "teacher";
 
     const { result: subjectsResult } = useList<Subject>({
         resource: "subjects",
@@ -146,12 +149,14 @@ const ClassesList = () => {
                             <ShowButton resource="classes" recordItemId={row.original.id} variant="outline" size="sm" >
                                 View
                             </ShowButton>
-                            <EditButton resource="classes" recordItemId={row.original.id} variant="outline" size="sm" />
+                            {canManageClasses ? (
+                                <EditButton resource="classes" recordItemId={row.original.id} variant="outline" size="sm" />
+                            ) : null}
                         </div>
                     )
                 }
             ],
-            [],
+            [canManageClasses],
         ),
         enableColumnPinning: true,
         initialState: {
@@ -357,7 +362,7 @@ const ClassesList = () => {
                             ))}
                         </SelectContent>
                     </Select>
-                    <CreateButton resource="classes" />
+                    {canManageClasses ? <CreateButton resource="classes" /> : null}
                 </div>
             </div>
             <DataTable table={classesTable} />

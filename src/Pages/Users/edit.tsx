@@ -54,8 +54,17 @@ const UsersEdit = () => {
       await onFinish(values);
     } catch (error) {
       console.error("Error updating user:", error);
+      const status =
+        (error as { statusCode?: number; status?: number })?.statusCode ??
+        (error as { statusCode?: number; status?: number })?.status;
+      const message =
+        status === 403
+          ? "You do not have permission to update this user."
+          : status === 401
+          ? "Your session expired. Please sign in again."
+          : "Failed to update user. Please try again.";
       setError("root", {
-        message: "Failed to update user. Please try again.",
+        message,
       });
       throw error;
     }

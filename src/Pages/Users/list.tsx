@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { useTable } from "@refinedev/react-table";
 import { Search } from "lucide-react";
-import { CrudFilter, useNotification } from "@refinedev/core";
+import { CrudFilter, useGetIdentity, useNotification } from "@refinedev/core";
 import dayjs from "dayjs";
 import { User } from "@/types";
 import { USER_ROLES } from "@/constence";
@@ -24,6 +24,8 @@ import { ShowButton } from "@/components/refine-ui/buttons/show";
 import { useSearchParams } from "react-router";
 
 const UsersList = () => {
+  const { data: currentUser } = useGetIdentity<{ role?: string }>();
+  const isAdmin = currentUser?.role === "admin";
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState(
     searchParams.get("q") ?? ""
@@ -104,12 +106,14 @@ const UsersList = () => {
                 size="sm"
                 variant="outline"
               />
-              <EditButton
-                resource="users"
-                recordItemId={row.original.id}
-                size="sm"
-                variant="outline"
-              />
+              {isAdmin ? (
+                <EditButton
+                  resource="users"
+                  recordItemId={row.original.id}
+                  size="sm"
+                  variant="outline"
+                />
+              ) : null}
             </div>
           ),
         },
@@ -270,7 +274,7 @@ const UsersList = () => {
               <SelectItem value={USER_ROLES.STUDENT}>Student</SelectItem>
             </SelectContent>
           </Select>
-          <CreateButton resource="users" />
+          {isAdmin ? <CreateButton resource="users" /> : null}
         </div>
       </div>
       <DataTable table={usersTable} />

@@ -184,7 +184,7 @@ const EnrollmentsList = () => {
     try {
       const response = await fetch(
         `${BACKEND_BASE_URL}/classes/${classId}/enrollments/${studentId}`,
-        { method: "DELETE" }
+        { method: "DELETE", credentials: "include" }
       );
 
       if (!response.ok) {

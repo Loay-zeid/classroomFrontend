@@ -6,6 +6,7 @@ type AuthUser = {
   name?: string;
   email?: string;
   image?: string;
+  role?: string;
 };
 
 const AUTH_STORAGE_KEY = ACCESS_TOKEN_KEY;
@@ -63,6 +64,7 @@ const buildIdentity = (user: AuthUser | null) => {
     firstName: name.split(" ")[0] ?? name,
     lastName: name.split(" ").slice(1).join(" "),
     avatar: user.image,
+    role: user.role,
   };
 };
 
@@ -124,7 +126,7 @@ export const authProvider: AuthProvider = {
 
     return {
       success: true,
-      redirectTo: "/",
+      redirectTo: "/dashboard",
     };
   },
   register: async (params) => {
@@ -168,7 +170,7 @@ export const authProvider: AuthProvider = {
 
     return {
       success: true,
-      redirectTo: "/",
+      redirectTo: "/dashboard",
     };
   },
   logout: async () => {
@@ -208,10 +210,11 @@ export const authProvider: AuthProvider = {
     };
   },
   onError: async (error) => {
-    const status = (error as { statusCode?: number; status?: number })?.statusCode ??
+    const status =
+      (error as { statusCode?: number; status?: number })?.statusCode ??
       (error as { statusCode?: number; status?: number })?.status;
 
-    if (status === 401 || status === 403) {
+    if (status === 401) {
       clearSession();
       return {
         logout: true,
@@ -220,6 +223,7 @@ export const authProvider: AuthProvider = {
       };
     }
 
+    // For 403 and other errors, keep the session and surface the error.
     return { error };
   },
   getIdentity: async () => {
