@@ -221,6 +221,11 @@ const Dashboard = () => {
     }));
   }, [users]);
 
+  const truncateLabel = (value: string, maxLength = 12) => {
+    if (value.length <= maxLength) return value;
+    return `${value.slice(0, Math.max(0, maxLength - 3))}...`;
+  };
+
   useEffect(() => {
     const errorMessage =
       usersQuery.error?.message ||
@@ -402,26 +407,33 @@ const Dashboard = () => {
                 No enrollment activity yet.
               </p>
             ) : (
-              <ChartContainer
-                config={{
-                  count: { label: "Enrollments", color: "#2563eb" },
-                }}
-                className="h-56 w-full"
-              >
-                <LineChart data={enrollmentTrendData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="label" tickLine={false} axisLine={false} />
-                  <YAxis allowDecimals={false} />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Line
-                    dataKey="count"
-                    type="monotone"
-                    stroke="var(--color-count)"
-                    strokeWidth={2}
-                    dot
-                  />
-                </LineChart>
-              </ChartContainer>
+              <div className="overflow-x-auto">
+                <ChartContainer
+                  config={{
+                    count: { label: "Enrollments", color: "#2563eb" },
+                  }}
+                  className="h-56 w-full min-w-[320px]"
+                >
+                  <LineChart data={enrollmentTrendData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis
+                      dataKey="label"
+                      tickLine={false}
+                      axisLine={false}
+                      tick={{ fontSize: 10 }}
+                    />
+                    <YAxis allowDecimals={false} tick={{ fontSize: 10 }} />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Line
+                      dataKey="count"
+                      type="monotone"
+                      stroke="var(--color-count)"
+                      strokeWidth={2}
+                      dot
+                    />
+                  </LineChart>
+                </ChartContainer>
+              </div>
             )}
           </CardContent>
         </Card>
@@ -440,20 +452,32 @@ const Dashboard = () => {
                 No classes found yet.
               </p>
             ) : (
-              <ChartContainer
-                config={{
-                  value: { label: "Classes", color: "#f59e0b" },
-                }}
-                className="h-64 w-full"
-              >
-                <BarChart data={classesByDepartmentData} layout="vertical" margin={{ left: 16 }}>
-                  <CartesianGrid horizontal={false} />
-                  <XAxis type="number" allowDecimals={false} />
-                  <YAxis type="category" dataKey="label" width={140} />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar dataKey="value" fill="var(--color-value)" radius={6} />
-                </BarChart>
-              </ChartContainer>
+              <div className="overflow-x-auto">
+                <ChartContainer
+                  config={{
+                    value: { label: "Classes", color: "#f59e0b" },
+                  }}
+                  className="h-64 w-full min-w-[420px]"
+                >
+                  <BarChart
+                    data={classesByDepartmentData}
+                    layout="vertical"
+                    margin={{ left: 0, right: 8 }}
+                  >
+                    <CartesianGrid horizontal={false} />
+                    <XAxis type="number" allowDecimals={false} tick={{ fontSize: 10 }} />
+                    <YAxis
+                      type="category"
+                      dataKey="label"
+                      width={120}
+                      tick={{ fontSize: 10 }}
+                      tickFormatter={(value) => truncateLabel(String(value), 14)}
+                    />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Bar dataKey="value" fill="var(--color-value)" radius={6} />
+                  </BarChart>
+                </ChartContainer>
+              </div>
             )}
           </CardContent>
         </Card>
@@ -472,34 +496,41 @@ const Dashboard = () => {
                 No capacity data yet.
               </p>
             ) : (
-              <ChartContainer
-                config={{
-                  Low: { label: "Low", color: "#22c55e" },
-                  Medium: { label: "Medium", color: "#f59e0b" },
-                  High: { label: "High", color: "#ef4444" },
-                }}
-                className="h-56 w-full"
-              >
-                <BarChart data={capacityUsageData}>
-                  <CartesianGrid vertical={false} />
-                  <XAxis dataKey="label" tickLine={false} axisLine={false} />
-                  <YAxis allowDecimals={false} />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar dataKey="value" radius={6}>
-                    {capacityUsageData.map((entry) => {
-                      const color =
-                        entry.label === "Low"
-                          ? "var(--color-Low)"
-                          : entry.label === "Medium"
-                          ? "var(--color-Medium)"
-                          : "var(--color-High)";
-                      return (
-                        <Cell key={entry.label} fill={color} />
-                      );
-                    })}
-                  </Bar>
-                </BarChart>
-              </ChartContainer>
+              <div className="overflow-x-auto">
+                <ChartContainer
+                  config={{
+                    Low: { label: "Low", color: "#22c55e" },
+                    Medium: { label: "Medium", color: "#f59e0b" },
+                    High: { label: "High", color: "#ef4444" },
+                  }}
+                  className="h-56 w-full min-w-[320px]"
+                >
+                  <BarChart data={capacityUsageData}>
+                    <CartesianGrid vertical={false} />
+                    <XAxis
+                      dataKey="label"
+                      tickLine={false}
+                      axisLine={false}
+                      tick={{ fontSize: 10 }}
+                    />
+                    <YAxis allowDecimals={false} tick={{ fontSize: 10 }} />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Bar dataKey="value" radius={6}>
+                      {capacityUsageData.map((entry) => {
+                        const color =
+                          entry.label === "Low"
+                            ? "var(--color-Low)"
+                            : entry.label === "Medium"
+                            ? "var(--color-Medium)"
+                            : "var(--color-High)";
+                        return (
+                          <Cell key={entry.label} fill={color} />
+                        );
+                      })}
+                    </Bar>
+                  </BarChart>
+                </ChartContainer>
+              </div>
             )}
           </CardContent>
         </Card>
@@ -518,40 +549,42 @@ const Dashboard = () => {
                 No users yet.
               </p>
             ) : (
-              <ChartContainer
-                config={{
-                  admin: { label: "Admin", color: "#0ea5e9" },
-                  teacher: { label: "Teacher", color: "#8b5cf6" },
-                  student: { label: "Student", color: "#22c55e" },
-                  unknown: { label: "Unknown", color: "#94a3b8" },
-                }}
-                className="h-56 w-full"
-              >
-                <PieChart>
-                  <ChartTooltip content={<ChartTooltipContent hideLabel />} />
-                  <ChartLegend content={<ChartLegendContent />} />
-                  <Pie
-                    data={userDistributionData}
-                    dataKey="value"
-                    nameKey="label"
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={80}
-                  >
-                    {userDistributionData.map((entry) => {
-                      const color =
-                        entry.label === "admin"
-                          ? "var(--color-admin)"
-                          : entry.label === "teacher"
-                          ? "var(--color-teacher)"
-                          : entry.label === "student"
-                          ? "var(--color-student)"
-                          : "var(--color-unknown)";
-                      return <Cell key={entry.label} fill={color} />;
-                    })}
-                  </Pie>
-                </PieChart>
-              </ChartContainer>
+              <div className="overflow-x-auto">
+                <ChartContainer
+                  config={{
+                    admin: { label: "Admin", color: "#0ea5e9" },
+                    teacher: { label: "Teacher", color: "#8b5cf6" },
+                    student: { label: "Student", color: "#22c55e" },
+                    unknown: { label: "Unknown", color: "#94a3b8" },
+                  }}
+                  className="h-56 w-full min-w-[320px]"
+                >
+                  <PieChart>
+                    <ChartTooltip content={<ChartTooltipContent hideLabel />} />
+                    <ChartLegend content={<ChartLegendContent />} />
+                    <Pie
+                      data={userDistributionData}
+                      dataKey="value"
+                      nameKey="label"
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={80}
+                    >
+                      {userDistributionData.map((entry) => {
+                        const color =
+                          entry.label === "admin"
+                            ? "var(--color-admin)"
+                            : entry.label === "teacher"
+                            ? "var(--color-teacher)"
+                            : entry.label === "student"
+                            ? "var(--color-student)"
+                            : "var(--color-unknown)";
+                        return <Cell key={entry.label} fill={color} />;
+                      })}
+                    </Pie>
+                  </PieChart>
+                </ChartContainer>
+              </div>
             )}
           </CardContent>
         </Card>
