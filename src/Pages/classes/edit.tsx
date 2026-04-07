@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { EditView, EditViewHeader } from "@/components/refine-ui/views/edit-view";
-import { useBack, useList, useResourceParams } from "@refinedev/core";
+import { useBack, useList, useResourceParams, type HttpError } from "@refinedev/core";
 import { Loader2 } from "lucide-react";
 import { classSchema } from "@/lib/schema";
 import UploadWidget from "@/components/upload-widget";
@@ -34,7 +34,7 @@ const ClassesEdit = () => {
   const { id: recordItemId } = useResourceParams();
   type ClassFormValues = z.infer<typeof classSchema>;
 
-  const form = useForm<ClassFormValues>({
+  const form = useForm<any, HttpError, ClassFormValues>({
     resolver: zodResolver(classSchema),
     refineCoreProps: {
       resource: "classes",
@@ -123,7 +123,7 @@ const ClassesEdit = () => {
         }
       />
 
-      {query.isLoading ? (
+      {query?.isLoading ? (
         <p className="state-message">Loading class details...</p>
       ) : (
         <>

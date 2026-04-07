@@ -33,7 +33,9 @@ import {
 
 export const SignUpForm = () => {
   const [name, setName] = useState("");
-  const [role, setRole] = useState(USER_ROLES.STUDENT);
+  const [role, setRole] = useState<
+    (typeof USER_ROLES)[keyof typeof USER_ROLES]
+  >(USER_ROLES.STUDENT);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -138,7 +140,12 @@ export const SignUpForm = () => {
 
             <div className={cn("flex", "flex-col", "gap-2", "mt-6")}>
               <Label>Role</Label>
-              <Select value={role} onValueChange={setRole}>
+              <Select
+                value={role}
+                onValueChange={(value) =>
+                  setRole(value as (typeof USER_ROLES)[keyof typeof USER_ROLES])
+                }
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select role" />
                 </SelectTrigger>

@@ -104,7 +104,7 @@ function App() {
               <Routes>
                 <Route
                   element={
-                    <Authenticated fallback={<Navigate to="/login" />}>
+                    <Authenticated key="app-auth" fallback={<Navigate to="/login" />}>
                       <Layout>
                         <Outlet />
                       </Layout>

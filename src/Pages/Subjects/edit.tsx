@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { EditView, EditViewHeader } from "@/components/refine-ui/views/edit-view";
-import { useBack, useList, useResourceParams } from "@refinedev/core";
+import { useBack, useList, useResourceParams, type HttpError } from "@refinedev/core";
 import { Loader2 } from "lucide-react";
 import { subjectSchema } from "@/lib/schema";
 import { Department } from "@/types";
@@ -32,7 +32,7 @@ const SubjectsEdit = () => {
   const { id: recordItemId } = useResourceParams();
   type SubjectFormValues = z.infer<typeof subjectSchema>;
 
-  const form = useForm<SubjectFormValues>({
+  const form = useForm<any, HttpError, SubjectFormValues>({
     resolver: zodResolver(subjectSchema),
     refineCoreProps: {
       resource: "subjects",
@@ -84,7 +84,7 @@ const SubjectsEdit = () => {
         }
       />
 
-      {query.isLoading ? (
+      {query?.isLoading ? (
         <p className="state-message">Loading subject details...</p>
       ) : (
         <>

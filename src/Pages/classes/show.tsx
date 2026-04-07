@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useList, useNotification, useShow } from "@refinedev/core";
 import dayjs from "dayjs";
-import { ClassDetails, User } from "@/types";
+import { ClassDetails, Subject, User } from "@/types";
 import { ShowView, ShowViewHeader } from "@/components/refine-ui/views/show-view.tsx";
 import { Card } from "@/components/ui/card.tsx";
 import { Badge } from "@/components/ui/badge.tsx";
@@ -63,6 +63,24 @@ const Show = () => {
     });
 
     const students = studentsResult.data ?? [];
+
+    const { result: subjectsResult } = useList<Subject>({
+        resource: "subjects",
+        pagination: {
+            pageSize: 200,
+        },
+    });
+
+    const { result: teachersResult } = useList<User>({
+        resource: "users",
+        filters: [{ field: "role", operator: "eq", value: "teacher" }],
+        pagination: {
+            pageSize: 200,
+        },
+    });
+
+    const subjects = subjectsResult.data ?? [];
+    const teachers = teachersResult.data ?? [];
 
     const enrolledStudents = useMemo(
         () => new Set(enrollments.map((item) => item.studentId)),
@@ -139,7 +157,28 @@ const Show = () => {
     }
 
     const details = classDetails;
-    const teacherName= details.teacher?.name ?? 'Unknown';
+    const subjectFromList =
+        details.subject ??
+        subjects.find((item) => item.id === details.subjectId);
+    const teacherFromList =
+        details.teacher ??
+        teachers.find((item) => item.id === details.teacherId);
+    const departmentFromList = details.department ?? subjectFromList?.department;
+
+    const subjectDetails = subjectFromList as
+        | (typeof subjectFromList & { code?: string; description?: string })
+        | undefined;
+    const subjectCode =
+        subjectDetails?.courseCode ??
+        subjectDetails?.code ??
+        "N/A";
+    const subjectName = subjectDetails?.name ?? "Unknown";
+    const subjectDescription =
+        subjectDetails?.briefDescription ??
+        subjectDetails?.description ??
+        "";
+
+    const teacherName= teacherFromList?.name ?? 'Unknown';
     const teacherInitials =
         teacherName.split('')
             .filter(Boolean)
@@ -150,7 +189,7 @@ const Show = () => {
 
     const placeholderUrl = `https://placehold.co/600x400?text=${encodeURIComponent(teacherInitials || 'NA')}`;
 
-    const { name, description, status, capacity, bannerCldPubId, subject, teacher, department } = details;
+    const { name, description, status, capacity, bannerCldPubId, bannerUrl } = details;
     const statusLabel = (typeof status === "string" ? status : "inactive").toUpperCase();
     const inviteCode = details.inviteCode?.trim() ?? "";
     const inviteCodeLabel = inviteCode || "Not available";
@@ -333,8 +372,10 @@ const Show = () => {
                 {bannerCldPubId ? (
                     <AdvancedImage
                         alt="Class Banner"
-                        cldImg={bannerPhoto(bannerCldPubId ?? '' , name)}
+                        cldImg={bannerPhoto(bannerCldPubId ?? "" , name)}
                     />
+                ) : bannerUrl ? (
+                    <img src={bannerUrl} alt="Class Banner" />
                 ) : (
                     <div className="placeholder"/>
                 )}
@@ -366,10 +407,10 @@ const Show = () => {
                             instructor
                         </p>
                         <div>
-                            <img src={teacher?.image ?? placeholderUrl} alt={teacherName} />
+                            <img src={teacherFromList?.image ?? placeholderUrl} alt={teacherName} />
                             <div>
                                 <p>{teacherName}</p>
-                                <p>{teacher?.email}</p>
+                                <p>{teacherFromList?.email}</p>
                             </div>
                         </div>
                     </div>
@@ -377,8 +418,8 @@ const Show = () => {
                         <p>Department</p>
 
                         <div>
-                           <p> {department?.name} </p>
-                            <p> {department?.description}</p>
+                           <p> {typeof departmentFromList === "string" ? departmentFromList : departmentFromList?.name ?? "Unknown"} </p>
+                            <p> {typeof departmentFromList === "string" ? "" : departmentFromList?.description ?? ""}</p>
                         </div>
                     </div>
                 </div>
@@ -388,9 +429,9 @@ const Show = () => {
                 <div className="subject">
                     <p>Subject</p>
                     <div>
-                        <Badge variant="outline">Code: {subject?.courseCode}</Badge>
-                        <p>{subject?.name}</p>
-                        <p>{subject?.briefDescription}</p>
+                        <Badge variant="outline">Code: {subjectCode}</Badge>
+                        <p>{subjectName}</p>
+                        <p>{subjectDescription}</p>
                     </div>
                 </div>
 

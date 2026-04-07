@@ -13,7 +13,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { EditView, EditViewHeader } from "@/components/refine-ui/views/edit-view";
-import { useBack, useResourceParams } from "@refinedev/core";
+import { useBack, useResourceParams, type HttpError } from "@refinedev/core";
 import { Loader2 } from "lucide-react";
 import { departmentSchema } from "@/lib/schema";
 import * as z from "zod";
@@ -24,7 +24,7 @@ const DepartmentsEdit = () => {
   const { id: recordItemId } = useResourceParams();
   type DepartmentFormValues = z.infer<typeof departmentSchema>;
 
-  const form = useForm<DepartmentFormValues>({
+  const form = useForm<any, HttpError, DepartmentFormValues>({
     resolver: zodResolver(departmentSchema),
     refineCoreProps: {
       resource: "departments",
@@ -66,7 +66,7 @@ const DepartmentsEdit = () => {
         }
       />
 
-      {query.isLoading ? (
+      {query?.isLoading ? (
         <p className="state-message">Loading department details...</p>
       ) : (
         <>

@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/select";
 import { EditView } from "@/components/refine-ui/views/edit-view";
 import { EditViewHeader } from "@/components/refine-ui/views/edit-view";
-import { useBack, useResourceParams } from "@refinedev/core";
+import { useBack, useResourceParams, type HttpError } from "@refinedev/core";
 import { Loader2 } from "lucide-react";
 import { USER_ROLES } from "@/constence";
 import { userSchema } from "@/lib/schema";
@@ -33,7 +33,7 @@ const UsersEdit = () => {
   const { id: recordItemId } = useResourceParams();
   type UserFormValues = z.infer<typeof userSchema>;
 
-  const form = useForm<UserFormValues>({
+  const form = useForm<any, HttpError, UserFormValues>({
     resolver: zodResolver(userSchema),
     refineCoreProps: {
       resource: "users",
@@ -75,7 +75,7 @@ const UsersEdit = () => {
         }
       />
 
-      {query.isLoading ? (
+      {query?.isLoading ? (
         <p className="state-message">Loading user details...</p>
       ) : (
         <>

@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/select";
 import { CreateView } from "@/components/refine-ui/views/create-view";
 import { Breadcrumb } from "@/components/refine-ui/layout/breadcrumb";
-import { useBack, useList } from "@refinedev/core";
+import { useBack, useList, type HttpError } from "@refinedev/core";
 import { Loader2 } from "lucide-react";
 import { classSchema } from "@/lib/schema";
 import UploadWidget from "@/components/upload-widget";
@@ -33,7 +33,7 @@ const ClassesCreate = () => {
     const back = useBack();
     type ClassFormValues = z.infer<typeof classSchema>;
 
-    const form = useForm({
+    const form = useForm<any, HttpError, ClassFormValues>({
         resolver: zodResolver(classSchema),
         refineCoreProps: {
             resource: "classes",

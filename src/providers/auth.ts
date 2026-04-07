@@ -207,6 +207,21 @@ export const authProvider: AuthProvider = {
       authenticated: true,
     };
   },
+  onError: async (error) => {
+    const status = (error as { statusCode?: number; status?: number })?.statusCode ??
+      (error as { statusCode?: number; status?: number })?.status;
+
+    if (status === 401 || status === 403) {
+      clearSession();
+      return {
+        logout: true,
+        redirectTo: "/login",
+        error,
+      };
+    }
+
+    return { error };
+  },
   getIdentity: async () => {
     const storedUser = readStoredUser();
     if (storedUser) {

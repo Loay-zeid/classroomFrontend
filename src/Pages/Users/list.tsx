@@ -154,10 +154,10 @@ const UsersList = () => {
         currentSorter?.field !== sortField ||
         currentSorter?.order !== sortOrder
       ) {
-        setSorters([{ field: sortField, order: sortOrder }], "replace");
+        setSorters([{ field: sortField, order: sortOrder }]);
       }
     } else if (currentSorter) {
-      setSorters([], "replace");
+      setSorters([]);
     }
   }, [searchParams, searchQuery, selectedRole, setSorters, sorters]);
 

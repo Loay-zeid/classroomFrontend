@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/select";
 import { CreateView } from "@/components/refine-ui/views/create-view";
 import { Breadcrumb } from "@/components/refine-ui/layout/breadcrumb";
-import { useBack } from "@refinedev/core";
+import { useBack, type HttpError } from "@refinedev/core";
 import { Loader2 } from "lucide-react";
 import { USER_ROLES } from "@/constence";
 import { userSchema } from "@/lib/schema";
@@ -31,7 +31,7 @@ const UsersCreate = () => {
   const back = useBack();
   type UserFormValues = z.infer<typeof userSchema>;
 
-  const form = useForm<UserFormValues>({
+  const form = useForm<any, HttpError, UserFormValues>({
     resolver: zodResolver(userSchema),
     refineCoreProps: {
       resource: "users",

@@ -204,10 +204,10 @@ const ClassesList = () => {
                 currentSorter?.field !== sortField ||
                 currentSorter?.order !== sortOrder
             ) {
-                setSorters([{ field: sortField, order: sortOrder }], "replace");
+                setSorters([{ field: sortField, order: sortOrder }]);
             }
         } else if (currentSorter) {
-            setSorters([], "replace");
+            setSorters([]);
         }
     }, [
         searchParams,

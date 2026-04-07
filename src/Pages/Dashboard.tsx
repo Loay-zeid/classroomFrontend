@@ -47,19 +47,19 @@ const Dashboard = () => {
   const { open } = useNotification();
   const [lastError, setLastError] = useState<string | null>(null);
 
-  const { result: usersResult } = useList<User>({
+  const { query: usersQuery, result: usersResult } = useList<User>({
     resource: "users",
     pagination: { pageSize: 200 },
   });
-  const { result: subjectsResult } = useList<Subject>({
+  const { query: subjectsQuery, result: subjectsResult } = useList<Subject>({
     resource: "subjects",
     pagination: { pageSize: 200 },
   });
-  const { result: classesResult } = useList<ClassDetails>({
+  const { query: classesQuery, result: classesResult } = useList<ClassDetails>({
     resource: "classes",
     pagination: { pageSize: 200 },
   });
-  const { result: enrollmentsResult } = useList<EnrollmentRow>({
+  const { query: enrollmentsQuery, result: enrollmentsResult } = useList<EnrollmentRow>({
     resource: "enrollments",
     pagination: { pageSize: 200 },
   });
@@ -70,10 +70,10 @@ const Dashboard = () => {
   const enrollments = enrollmentsResult?.data ?? [];
 
   const isLoading =
-    !!usersResult?.isLoading ||
-    !!subjectsResult?.isLoading ||
-    !!classesResult?.isLoading ||
-    !!enrollmentsResult?.isLoading;
+    usersQuery.isLoading ||
+    subjectsQuery.isLoading ||
+    classesQuery.isLoading ||
+    enrollmentsQuery.isLoading;
 
   const usersTotal = usersResult?.total ?? users.length;
   const subjectsTotal = subjectsResult?.total ?? subjects.length;
@@ -106,7 +106,7 @@ const Dashboard = () => {
         id: `class-${classRow.id}`,
         title: `New class: ${classRow.name ?? "Untitled"}`,
         subtitle: classRow.subject?.name ?? "Class created",
-        createdAt: classRow.created_at,
+        createdAt: classRow.createdAt ?? classRow.created_at,
       });
     });
 
@@ -223,10 +223,10 @@ const Dashboard = () => {
 
   useEffect(() => {
     const errorMessage =
-      usersResult?.error?.message ||
-      subjectsResult?.error?.message ||
-      classesResult?.error?.message ||
-      enrollmentsResult?.error?.message ||
+      usersQuery.error?.message ||
+      subjectsQuery.error?.message ||
+      classesQuery.error?.message ||
+      enrollmentsQuery.error?.message ||
       null;
 
     if (!errorMessage || errorMessage === lastError) return;

@@ -111,9 +111,14 @@ export type ClassDetails = {
     capacity: number;
     courseCode: string;
     courseName: string;
+    createdAt?: string;
+    created_at?: string;
     bannerUrl?: string;
     bannerCldPubId?: string;
     subject?: Subject;
+    subjectId?: number;
+    teacherId?: string;
+    departmentId?: number;
     teacher?: User;
     department?: Department;
     schedules: Schedule[];

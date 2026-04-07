@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/form";
 import { CreateView } from "@/components/refine-ui/views/create-view";
 import { Breadcrumb } from "@/components/refine-ui/layout/breadcrumb";
-import { useBack } from "@refinedev/core";
+import { useBack, type HttpError } from "@refinedev/core";
 import { Loader2 } from "lucide-react";
 import { departmentSchema } from "@/lib/schema";
 import * as z from "zod";
@@ -23,7 +23,7 @@ const DepartmentsCreate = () => {
   const back = useBack();
   type DepartmentFormValues = z.infer<typeof departmentSchema>;
 
-  const form = useForm<DepartmentFormValues>({
+  const form = useForm<any, HttpError, DepartmentFormValues>({
     resolver: zodResolver(departmentSchema),
     refineCoreProps: {
       resource: "departments",

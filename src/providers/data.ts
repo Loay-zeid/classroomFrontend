@@ -41,12 +41,33 @@ const toDepartmentName = (value: unknown): string => {
     return "";
 };
 
+const toDepartmentDetails = (
+    value: unknown,
+): { name?: string; description?: string } | null => {
+    if (typeof value !== "object" || value === null) return null;
+    const candidate = value as {
+        name?: unknown;
+        description?: unknown;
+    };
+
+    const name = typeof candidate.name === "string" ? candidate.name : undefined;
+    const description =
+        typeof candidate.description === "string" ? candidate.description : undefined;
+
+    if (!name && !description) return null;
+    return { name, description };
+};
+
 const mapSubject = (row: SubjectApiRow): Subject => ({
     id: row.id,
     name: row.name,
     courseCode: row.courseCode ?? row.code ?? "",
     briefDescription: row.briefDescription ?? row.description ?? "",
-    department: (toDepartmentName(row.department) || toDepartmentName(row.departments) || "") as Subject["department"],
+    department:
+        (toDepartmentName(row.department) ||
+            toDepartmentName(row.departments) ||
+            toDepartmentDetails(row.departments)?.name ||
+            "") as Subject["department"],
     departmentId: row.departmentId,
     createdAt: row.createdAt ?? row.created_at,
 });
@@ -172,15 +193,26 @@ const options: CreateDataProviderOptions = {
     },
     getOne: {
         getEndpoint: ({ resource, id }) => `${resource}/${id}`,
-        mapResponse: async (response) => {
+        mapResponse: async (response, params) => {
             if (!response.ok) {
                 throw await buildHttpError(response);
             }
             const json: GetOneResponse = await response.json();
-            if (response.ok && json.data && typeof json.data === "object") {
-                if ((json.data as { id?: unknown }).id && (json.data as { name?: unknown }).name) {
+            if (
+                params?.resource === "subjects" &&
+                response.ok &&
+                json.data &&
+                typeof json.data === "object"
+            ) {
+                if (
+                    (json.data as { id?: unknown }).id &&
+                    (json.data as { name?: unknown }).name
+                ) {
                     // Keep subject detail shape consistent with list mapping.
-                    if ((json.data as { department?: unknown }).department) {
+                    if (
+                        (json.data as { department?: unknown }).department ||
+                        (json.data as { departments?: unknown }).departments
+                    ) {
                         return mapSubject(json.data as SubjectApiRow);
                     }
                 }

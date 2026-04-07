@@ -22,7 +22,7 @@ export const USER_ROLES = {
     STUDENT: "student",
     TEACHER: "teacher",
     ADMIN: "admin",
-};
+} as const;
 
 export const ROLE_OPTIONS = [
     {
