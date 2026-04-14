@@ -16,7 +16,11 @@ import {
 } from "@refinedev/core";
 import { LogOutIcon, Search } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router";
+import {
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from "react-router";
 
 export const Header = () => {
   const { isMobile } = useSidebar();
@@ -25,32 +29,7 @@ export const Header = () => {
 };
 
 function DesktopHeader() {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [query, setQuery] = useState(searchParams.get("q") ?? "");
-
-  useEffect(() => {
-    const urlQuery = searchParams.get("q") ?? "";
-    if (urlQuery !== query) {
-      setQuery(urlQuery);
-    }
-  }, [searchParams]);
-
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      const nextParams = new URLSearchParams(searchParams);
-      const trimmed = query.trim();
-      if (trimmed) {
-        nextParams.set("q", trimmed);
-      } else {
-        nextParams.delete("q");
-      }
-      if (nextParams.toString() !== searchParams.toString()) {
-        setSearchParams(nextParams, { replace: true });
-      }
-    }, 300);
-
-    return () => clearTimeout(timeoutId);
-  }, [query, searchParams, setSearchParams]);
+  const { query, setQuery, submitSearch } = useGlobalSearchInput();
 
   return (
     <header
@@ -70,17 +49,25 @@ function DesktopHeader() {
         "z-40"
       )}
     >
-      <div className="relative hidden w-full max-w-sm md:block">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          id="global-search"
-          name="global-search"
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder="Search..."
-          className="pl-9"
-        />
-      </div>
+      <form
+        className="w-full max-w-sm"
+        onSubmit={(event) => {
+          event.preventDefault();
+          submitSearch(query);
+        }}
+      >
+        <div className="relative hidden w-full md:block">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            id="global-search"
+            name="global-search"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Search all sections..."
+            className="pl-9"
+          />
+        </div>
+      </form>
       <ThemeToggle />
       <UserDropdown />
     </header>
@@ -89,36 +76,11 @@ function DesktopHeader() {
 
 function MobileHeader() {
   const { open, isMobile } = useSidebar();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [query, setQuery] = useState(searchParams.get("q") ?? "");
+  const { query, setQuery, submitSearch } = useGlobalSearchInput();
 
   const { title } = useRefineOptions();
   const titleText = title?.text ?? "Classrom";
   const titleIcon = title?.icon ?? null;
-
-  useEffect(() => {
-    const urlQuery = searchParams.get("q") ?? "";
-    if (urlQuery !== query) {
-      setQuery(urlQuery);
-    }
-  }, [searchParams]);
-
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      const nextParams = new URLSearchParams(searchParams);
-      const trimmed = query.trim();
-      if (trimmed) {
-        nextParams.set("q", trimmed);
-      } else {
-        nextParams.delete("q");
-      }
-      if (nextParams.toString() !== searchParams.toString()) {
-        setSearchParams(nextParams, { replace: true });
-      }
-    }, 300);
-
-    return () => clearTimeout(timeoutId);
-  }, [query, searchParams, setSearchParams]);
 
   return (
     <header
@@ -181,22 +143,61 @@ function MobileHeader() {
         </h2>
       </div>
 
-      <div className="relative flex-1 max-w-[160px]">
+      <form
+        className="relative flex-1 max-w-[160px]"
+        onSubmit={(event) => {
+          event.preventDefault();
+          submitSearch(query);
+        }}
+      >
         <Search className="absolute left-2 top-1/2 h-3 w-3 -translate-y-1/2 text-muted-foreground" />
         <Input
           id="global-search-mobile"
           name="global-search-mobile"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Search..."
+          placeholder="Search all..."
           className="h-8 pl-7 text-xs"
         />
-      </div>
+      </form>
 
       <ThemeToggle className={cn("h-8", "w-8")} />
     </header>
   );
 }
+
+const useGlobalSearchInput = () => {
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const isGlobalSearchPage = location.pathname === "/search";
+  const [query, setQuery] = useState(
+    isGlobalSearchPage ? searchParams.get("q") ?? "" : ""
+  );
+
+  useEffect(() => {
+    if (!isGlobalSearchPage) return;
+    const urlQuery = searchParams.get("q") ?? "";
+    setQuery((currentQuery) =>
+      currentQuery === urlQuery ? currentQuery : urlQuery
+    );
+  }, [isGlobalSearchPage, searchParams]);
+
+  const submitSearch = (inputValue: string) => {
+    const trimmed = inputValue.trim();
+    const nextParams = new URLSearchParams();
+    if (trimmed) {
+      nextParams.set("q", trimmed);
+    }
+
+    navigate({
+      pathname: "/search",
+      search: nextParams.toString() ? `?${nextParams.toString()}` : "",
+    });
+  };
+
+  return { query, setQuery, submitSearch };
+};
 
 const UserDropdown = () => {
   const { mutate: logout, isPending: isLoggingOut } = useLogout();

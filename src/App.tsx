@@ -36,6 +36,7 @@ import DepartmentsCreate from "@/Pages/Departments/create.tsx";
 import DepartmentsEdit from "@/Pages/Departments/edit.tsx";
 import DepartmentsShow from "@/Pages/Departments/show.tsx";
 import EnrollmentsList from "@/Pages/Enrollments/list.tsx";
+import GlobalSearch from "@/Pages/search.tsx";
 
 import.meta.env.VITE_BACKEND_BASE_URL
 
@@ -149,6 +150,7 @@ function App() {
                   <Route path="enrollments">
                     <Route index element={<EnrollmentsList />} />
                   </Route>
+                  <Route path="/search" element={<GlobalSearch />} />
                 </Route>
                 <Route path="/" element={<Navigate to="/login" replace />} />
                 <Route path="/login" element={<SignInForm />} />
