@@ -216,9 +216,6 @@ const ClassesList = () => {
         }
     }, [
         searchParams,
-        searchQuery,
-        selectedSubject,
-        selectedTeacher,
         setSorters,
         sorters,
     ]);

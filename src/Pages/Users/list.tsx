@@ -163,7 +163,7 @@ const UsersList = () => {
     } else if (currentSorter) {
       setSorters([]);
     }
-  }, [searchParams, searchQuery, selectedRole, setSorters, sorters]);
+  }, [searchParams, setSorters, sorters]);
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {

@@ -33,7 +33,7 @@ function DesktopHeader() {
     if (urlQuery !== query) {
       setQuery(urlQuery);
     }
-  }, [query, searchParams]);
+  }, [searchParams]);
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -101,7 +101,7 @@ function MobileHeader() {
     if (urlQuery !== query) {
       setQuery(urlQuery);
     }
-  }, [query, searchParams]);
+  }, [searchParams]);
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {

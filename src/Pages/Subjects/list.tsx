@@ -144,7 +144,7 @@ const SubjectList = () => {
         } else if (currentSorter) {
             setSorters([]);
         }
-    }, [searchParams, searchQuery, selectedDepartment, setSorters, sorters]);
+    }, [searchParams, setSorters, sorters]);
 
     useEffect(() => {
         const timeoutId = setTimeout(() => {
