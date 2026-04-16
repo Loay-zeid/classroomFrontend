@@ -1,48 +1,117 @@
-# classrom-frontend
+# 🎨 Classroom Management Dashboard (Frontend)
 
-<div align="center" style="margin: 30px;">
-    <a href="https://refine.dev">
-    <img alt="refine logo" src="https://refine.ams3.cdn.digitaloceanspaces.com/readme/refine-readme-banner.png">
-    </a>
-</div>
-<br/>
+## 📌 Overview
 
-This [Refine](https://github.com/refinedev/refine) project was generated with [create refine-app](https://github.com/refinedev/refine/tree/master/packages/create-refine-app).
+The **Classroom Management Dashboard** is a modern, scalable, and role-based frontend application built using **React** and **TypeScript**. It provides an intuitive interface for managing educational data such as subjects, departments, and users.
 
-## Getting Started
+Designed with performance and usability in mind, the dashboard delivers a seamless experience through a clean UI, structured architecture, and dynamic data handling powered by a RESTful backend.
 
-A React Framework for building internal tools, admin panels, dashboards & B2B apps with unmatched flexibility ✨
+This project demonstrates strong frontend engineering practices including component-based architecture, state management, routing, and API integration.
 
-Refine's hooks and components simplifies the development process and eliminates the repetitive tasks by providing industry-standard solutions for crucial aspects of a project, including authentication, access control, routing, networking, state management, and i18n.
+---
 
-## Available Scripts
+## 🚀 Live Demo
 
-### Running the development server.
+🔗 https://classroom-frontend-liart.vercel.app/
+
+---
+
+## 🎯 Key Features
+
+- 🔐 Authentication & Protected Routes  
+- 👥 Role-Based Access Control (Admin / Instructor / Student)  
+- 📚 Subject Management (CRUD, search, filter, pagination)  
+- 📊 Clean Dashboard UI with sidebar navigation  
+- ☁️ Cloudinary media handling  
+- ⚡ Fast and responsive user experience  
+
+---
+
+## ⚠️ Role-Based System
+
+| Role        | Permissions |
+|------------|------------|
+| 👨‍💼 Admin     | Full system control |
+| 👨‍🏫 Instructor | Manage subjects & classes |
+| 🎓 Student   | View assigned content |
+
+---
+
+## 🧰 Tech Stack
+
+- React + TypeScript  
+- Refine  
+- React Router  
+- Axios / Fetch API  
+- Tailwind CSS  
+- Cloudinary  
+
+---
+
+## ⚙️ Getting Started
 
 ```bash
-    npm run dev
-```
+npm install
+npm run dev
 
-### Building for production.
 
-```bash
-    npm run build
-```
+## 🧭 How to Use the Application
 
-### Running the production server.
+### 1️⃣ Sign Up
 
-```bash
-    npm run start
-```
+- Enter personal information  
+- Select role (Admin / Instructor / Student)  
+- Submit registration form  
 
-## Learn More
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Loay-zeid/classroomFrontend/main/public/sign-up.png" width="900"/>
+</p>
 
-To learn more about **Refine**, please check out the [Documentation](https://refine.dev/docs)
+---
 
-- **REST Data Provider** [Docs](https://refine.dev/docs/core/providers/data-provider/#overview)
-- **shadcn/ui** [Docs](https://refine.dev/docs/guides-concepts/general-concepts/#headless-concept)
-- **React Router** [Docs](https://refine.dev/docs/core/providers/router-provider/)
+### 2️⃣ Sign In
 
-## License
+- Enter credentials  
+- Authenticate user  
+- Redirect to dashboard  
 
-MIT
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Loay-zeid/classroomFrontend/main/public/sign-in.png" width="900"/>
+</p>
+
+---
+
+### 3️⃣ Dashboard
+
+- Overview of system  
+- Sidebar navigation  
+- Access to features  
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Loay-zeid/classroomFrontend/main/public/dashboard.png" width="900"/>
+</p>
+
+---
+
+### 4️⃣ Manage Subjects / Classes
+
+- View all subjects  
+- Search by name  
+- Filter by department  
+- Paginated results  
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Loay-zeid/classroomFrontend/main/public/classes.png" width="900"/>
+</p>
+
+---
+
+### 5️⃣ View & Edit Data
+
+- Open detailed view  
+- Modify data  
+- Save updates  
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Loay-zeid/classroomFrontend/main/public/show-edit.png" width="900"/>
+</p>
