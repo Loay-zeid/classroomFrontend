@@ -53,7 +53,7 @@ This project demonstrates strong frontend engineering practices including compon
 ```bash
 npm install
 npm run dev
-
+```
 
 ## 🧭 How to Use the Application
 
