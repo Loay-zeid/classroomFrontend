@@ -113,5 +113,5 @@ npm run dev
 - Save updates  
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Loay-zeid/classroomFrontend/main/public/show-edit.png" width="900"/>
+  <img src="https://raw.githubusercontent.com/Loay-zeid/classroomFrontend/main/public/show&edit.png" width="900"/>
 </p>
