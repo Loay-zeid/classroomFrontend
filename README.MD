@@ -10,11 +10,7 @@ This project demonstrates strong frontend engineering practices including compon
 
 ---
 
-## 🚀 Live Demo
 
-🔗 https://classroom-frontend-liart.vercel.app/
-
----
 
 ## 🎯 Key Features
 
@@ -115,3 +111,11 @@ npm run dev
 <p align="center">
   <img src="https://raw.githubusercontent.com/Loay-zeid/classroomFrontend/main/public/show&edit.png" width="900"/>
 </p>
+
+---
+
+## 🚀 Live Demo
+
+🔗 https://classroom-frontend-liart.vercel.app/
+
+---
