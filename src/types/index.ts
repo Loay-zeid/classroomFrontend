@@ -73,6 +73,12 @@ export enum UserRole {
     ADMIN = "admin",
 }
 
+export enum UserApprovalStatus {
+    PENDING = "pending",
+    APPROVED = "approved",
+    REJECTED = "rejected",
+}
+
 export type User = {
     id: string;
     createdAt: string;
@@ -80,6 +86,7 @@ export type User = {
     email: string;
     name: string;
     role: UserRole;
+    approvalStatus?: UserApprovalStatus;
     image?: string;
     imageCldPubId?: string;
     department?: string;

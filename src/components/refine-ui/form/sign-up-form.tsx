@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-
+import { USER_ROLES } from "@/constence";
 import { InputPassword } from "@/components/refine-ui/form/input-password";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,31 +22,42 @@ import {
   useRefineOptions,
   useRegister,
 } from "@refinedev/core";
-import { USER_ROLES } from "@/constence";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
-export const SignUpForm = () => {
+type SignUpFormProps = {
+  role: typeof USER_ROLES.TEACHER | typeof USER_ROLES.STUDENT;
+};
+
+const roleCopy = {
+  [USER_ROLES.TEACHER]: {
+    heading: "Hello Teacher",
+    description:
+      "Create your account and send your access request to the admin team.",
+    submitLabel: "Create Teacher Account",
+    altQuestion: "Are you a student?",
+    altLinkLabel: "Go to student sign up",
+    altLinkPath: "/register/student",
+  },
+  [USER_ROLES.STUDENT]: {
+    heading: "Hello Student",
+    description: "Create your account and continue directly to your dashboard.",
+    submitLabel: "Create Student Account",
+    altQuestion: "Are you a teacher?",
+    altLinkLabel: "Go to teacher sign up",
+    altLinkPath: "/register",
+  },
+} as const;
+
+export const SignUpForm = ({ role }: SignUpFormProps) => {
   const [name, setName] = useState("");
-  const [role, setRole] = useState<
-    (typeof USER_ROLES)[keyof typeof USER_ROLES]
-  >(USER_ROLES.STUDENT);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
   const { open } = useNotification();
-
   const Link = useLink();
-
   const { title } = useRefineOptions();
-
   const { mutate: register } = useRegister();
+  const copy = roleCopy[role];
 
   const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -58,7 +69,6 @@ export const SignUpForm = () => {
         description:
           "Please make sure both password fields contain the same value.",
       });
-
       return;
     }
 
@@ -102,12 +112,12 @@ export const SignUpForm = () => {
               "font-semibold"
             )}
           >
-            Sign up
+            {copy.heading}
           </CardTitle>
           <CardDescription
             className={cn("text-muted-foreground", "font-medium")}
           >
-            Welcome to Classroom.
+            {copy.description}
           </CardDescription>
         </CardHeader>
 
@@ -120,7 +130,6 @@ export const SignUpForm = () => {
               <Input
                 id="name"
                 type="text"
-                placeholder=""
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -131,30 +140,10 @@ export const SignUpForm = () => {
               <Input
                 id="email"
                 type="email"
-                placeholder=""
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
-            </div>
-
-            <div className={cn("flex", "flex-col", "gap-2", "mt-6")}>
-              <Label>Role</Label>
-              <Select
-                value={role}
-                onValueChange={(value) =>
-                  setRole(value as (typeof USER_ROLES)[keyof typeof USER_ROLES])
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select role" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={USER_ROLES.STUDENT}>Student</SelectItem>
-                  <SelectItem value={USER_ROLES.TEACHER}>Teacher</SelectItem>
-                  <SelectItem value={USER_ROLES.ADMIN}>Admin</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
 
             <div
@@ -192,18 +181,17 @@ export const SignUpForm = () => {
                 "text-white"
               )}
             >
-              Sign up
+              {copy.submitLabel}
             </Button>
-
           </form>
         </CardContent>
 
         <Separator />
 
-        <CardFooter>
-          <div className={cn("w-full", "text-center text-sm")}>
+        <CardFooter className={cn("flex-col", "items-start", "gap-2")}>
+          <div className={cn("w-full", "text-center", "text-sm")}>
             <span className={cn("text-sm", "text-muted-foreground")}>
-              Have an account?{" "}
+              You have an account already?{" "}
             </span>
             <Link
               to="/login"
@@ -215,6 +203,22 @@ export const SignUpForm = () => {
               )}
             >
               Sign in
+            </Link>
+          </div>
+          <div className={cn("w-full", "text-center", "text-sm")}>
+            <span className={cn("text-sm", "text-muted-foreground")}>
+              {copy.altQuestion}{" "}
+            </span>
+            <Link
+              to={copy.altLinkPath}
+              className={cn(
+                "text-green-600",
+                "dark:text-green-400",
+                "font-semibold",
+                "underline"
+              )}
+            >
+              {copy.altLinkLabel}
             </Link>
           </div>
         </CardFooter>

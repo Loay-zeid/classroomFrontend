@@ -129,6 +129,7 @@ const options: CreateDataProviderOptions = {
                 if (resource === 'users') {
                     if (field === 'name' || field === 'email') params.search = value;
                     if (field === 'role') params.role = value;
+                    if (field === 'approvalStatus') params.approvalStatus = value;
                 }
 
                 if (resource === 'departments') {

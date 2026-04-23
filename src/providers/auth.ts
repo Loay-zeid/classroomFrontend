@@ -7,6 +7,7 @@ type AuthUser = {
   email?: string;
   image?: string;
   role?: string;
+  approvalStatus?: string;
 };
 
 const AUTH_STORAGE_KEY = ACCESS_TOKEN_KEY;
@@ -65,7 +66,19 @@ const buildIdentity = (user: AuthUser | null) => {
     lastName: name.split(" ").slice(1).join(" "),
     avatar: user.image,
     role: user.role,
+    approvalStatus: user.approvalStatus,
   };
+};
+
+const resolvePostAuthRedirect = (user: AuthUser | null) => {
+  if (
+    user?.role === "teacher" &&
+    user.approvalStatus &&
+    user.approvalStatus !== "approved"
+  ) {
+    return "/teacher-pending";
+  }
+  return "/dashboard";
 };
 
 const requestJson = async (url: string, init: RequestInit) => {
@@ -126,7 +139,7 @@ export const authProvider: AuthProvider = {
 
     return {
       success: true,
-      redirectTo: "/dashboard",
+      redirectTo: resolvePostAuthRedirect(user),
     };
   },
   register: async (params) => {
@@ -170,7 +183,7 @@ export const authProvider: AuthProvider = {
 
     return {
       success: true,
-      redirectTo: "/dashboard",
+      redirectTo: resolvePostAuthRedirect(user),
     };
   },
   logout: async () => {
@@ -203,6 +216,14 @@ export const authProvider: AuthProvider = {
     }
 
     const user = extractUser(payload);
+    if (!user) {
+      clearSession();
+      return {
+        authenticated: false,
+        redirectTo: "/login",
+      };
+    }
+
     persistSession(user);
 
     return {
@@ -245,10 +266,12 @@ export const authProvider: AuthProvider = {
     }
 
     const user = extractUser(payload);
-    if (user) {
-      persistSession(user);
+    if (!user) {
+      clearSession();
+      return null;
     }
 
+    persistSession(user);
     return buildIdentity(user);
   },
 };

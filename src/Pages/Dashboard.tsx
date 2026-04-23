@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useList, useNotification } from "@refinedev/core";
+import { useGetIdentity, useList, useNotification } from "@refinedev/core";
 import dayjs from "dayjs";
 import {
   Bar,
@@ -24,6 +24,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { BACKEND_BASE_URL } from "@/constence";
 import { ClassDetails, Subject, User } from "@/types";
 
 type EnrollmentRow = {
@@ -45,7 +46,10 @@ type ActivityItem = {
 
 const Dashboard = () => {
   const { open } = useNotification();
+  const { data: currentUser } = useGetIdentity<{ role?: string }>();
+  const isAdmin = currentUser?.role === "admin";
   const [lastError, setLastError] = useState<string | null>(null);
+  const [updatingTeacherId, setUpdatingTeacherId] = useState<string | null>(null);
 
   const { query: usersQuery, result: usersResult } = useList<User>({
     resource: "users",
@@ -63,17 +67,32 @@ const Dashboard = () => {
     resource: "enrollments",
     pagination: { pageSize: 200 },
   });
+  const { query: pendingTeachersQuery, result: pendingTeachersResult } =
+    useList<User>({
+      resource: "users",
+      filters: [
+        { field: "role", operator: "eq", value: "teacher" },
+        { field: "approvalStatus", operator: "eq", value: "pending" },
+      ],
+      pagination: { pageSize: 50 },
+      queryOptions: {
+        enabled: isAdmin,
+      },
+    });
 
   const users = usersResult?.data ?? [];
   const subjects = subjectsResult?.data ?? [];
   const classes = classesResult?.data ?? [];
   const enrollments = enrollmentsResult?.data ?? [];
+  const pendingTeachers = pendingTeachersResult?.data ?? [];
 
   const isLoading =
     usersQuery.isLoading ||
     subjectsQuery.isLoading ||
     classesQuery.isLoading ||
     enrollmentsQuery.isLoading;
+
+  const isPendingTeachersLoading = !!isAdmin && pendingTeachersQuery.isLoading;
 
   const usersTotal = usersResult?.total ?? users.length;
   const subjectsTotal = subjectsResult?.total ?? subjects.length;
@@ -221,6 +240,53 @@ const Dashboard = () => {
     }));
   }, [users]);
 
+  const handleTeacherApproval = async (
+    teacherId: string,
+    nextStatus: "approved" | "rejected"
+  ) => {
+    setUpdatingTeacherId(teacherId);
+    try {
+      const response = await fetch(`${BACKEND_BASE_URL}/users/${teacherId}`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ approvalStatus: nextStatus }),
+      });
+
+      const payload = (await response.json().catch(() => null)) as
+        | { error?: string }
+        | null;
+
+      if (!response.ok) {
+        throw new Error(payload?.error ?? "Failed to update teacher request.");
+      }
+
+      open?.({
+        type: "success",
+        message:
+          nextStatus === "approved"
+            ? "Teacher approved"
+            : "Teacher request cancelled",
+      });
+
+      await Promise.all([
+        usersQuery.refetch(),
+        pendingTeachersQuery.refetch(),
+      ]);
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Failed to update request.";
+      open?.({
+        type: "error",
+        message,
+      });
+    } finally {
+      setUpdatingTeacherId(null);
+    }
+  };
+
   const truncateLabel = (value: string, maxLength = 12) => {
     if (value.length <= maxLength) return value;
     return `${value.slice(0, Math.max(0, maxLength - 3))}...`;
@@ -319,6 +385,73 @@ const Dashboard = () => {
           </CardContent>
         </Card>
       </div>
+
+      {isAdmin ? (
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-semibold">
+              Teacher signup requests
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {isPendingTeachersLoading ? (
+              <div className="space-y-2">
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <Skeleton
+                    key={`pending-teacher-skeleton-${index}`}
+                    className="h-16 w-full"
+                  />
+                ))}
+              </div>
+            ) : pendingTeachers.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                No pending teacher requests.
+              </p>
+            ) : (
+              pendingTeachers.map((teacher) => (
+                <div
+                  key={teacher.id}
+                  className="flex flex-col gap-3 rounded-md border p-4 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <div>
+                    <p className="text-sm font-medium">{teacher.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {teacher.email}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Requested{" "}
+                      {teacher.createdAt && dayjs(teacher.createdAt).isValid()
+                        ? dayjs(teacher.createdAt).format("MMM D, YYYY h:mm A")
+                        : "-"}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      size="sm"
+                      onClick={() =>
+                        handleTeacherApproval(String(teacher.id), "approved")
+                      }
+                      disabled={updatingTeacherId === teacher.id}
+                    >
+                      Approve
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() =>
+                        handleTeacherApproval(String(teacher.id), "rejected")
+                      }
+                      disabled={updatingTeacherId === teacher.id}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              ))
+            )}
+          </CardContent>
+        </Card>
+      ) : null}
 
       <div className="grid gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">

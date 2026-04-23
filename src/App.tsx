@@ -6,6 +6,7 @@ import routerProvider, {
   UnsavedChangesNotifier,
 } from "@refinedev/react-router";
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from "react-router";
+import type { ReactNode } from "react";
 import "./App.css";
 import { Toaster } from "./components/refine-ui/notification/toaster";
 import { useNotificationProvider } from "./components/refine-ui/notification/use-notification-provider";
@@ -22,6 +23,7 @@ import SubjectsShow from "@/Pages/Subjects/show.tsx";
 import { SignInForm } from "@/components/refine-ui/form/sign-in-form.tsx";
 import { SignUpForm } from "@/components/refine-ui/form/sign-up-form.tsx";
 import { authProvider } from "@/providers/auth";
+import { USER_ROLES } from "@/constence";
 
 import ClassesCreate from "@/Pages/classes/create.tsx";
 import ClassesEdit from "@/Pages/classes/edit.tsx";
@@ -37,15 +39,62 @@ import DepartmentsEdit from "@/Pages/Departments/edit.tsx";
 import DepartmentsShow from "@/Pages/Departments/show.tsx";
 import EnrollmentsList from "@/Pages/Enrollments/list.tsx";
 import GlobalSearch from "@/Pages/search.tsx";
+import TeacherApprovalPending from "@/Pages/TeacherApprovalPending.tsx";
 
 import.meta.env.VITE_BACKEND_BASE_URL
 
 const RoleDashboard = () => {
-  const { data: user } = useGetIdentity<{ role?: string }>();
+  const { data: user } = useGetIdentity<{
+    role?: string;
+    approvalStatus?: string;
+  }>();
+
+  if (
+    user?.role === USER_ROLES.TEACHER &&
+    user?.approvalStatus &&
+    user.approvalStatus !== "approved"
+  ) {
+    return <Navigate to="/teacher-pending" replace />;
+  }
+
   if (user?.role === "student") {
     return <StudentDashboard />;
   }
   return <Dashboard />;
+};
+
+const PendingTeacherGuard = ({ children }: { children: ReactNode }) => {
+  const { data: user } = useGetIdentity<{
+    role?: string;
+    approvalStatus?: string;
+  }>();
+
+  if (
+    user?.role === USER_ROLES.TEACHER &&
+    user?.approvalStatus &&
+    user.approvalStatus !== "approved"
+  ) {
+    return <Navigate to="/teacher-pending" replace />;
+  }
+
+  return <>{children}</>;
+};
+
+const TeacherPendingRoute = () => {
+  const { data: user } = useGetIdentity<{
+    role?: string;
+    approvalStatus?: string;
+  }>();
+
+  if (
+    user?.role === USER_ROLES.TEACHER &&
+    user?.approvalStatus &&
+    user.approvalStatus !== "approved"
+  ) {
+    return <TeacherApprovalPending />;
+  }
+
+  return <Navigate to="/dashboard" replace />;
 };
 
 function App() {
@@ -115,9 +164,11 @@ function App() {
                 <Route
                   element={
                     <Authenticated key="app-auth" fallback={<Navigate to="/login" />}>
-                      <Layout>
-                        <Outlet />
-                      </Layout>
+                      <PendingTeacherGuard>
+                        <Layout>
+                          <Outlet />
+                        </Layout>
+                      </PendingTeacherGuard>
                     </Authenticated>
                   }
                 >
@@ -154,7 +205,22 @@ function App() {
                 </Route>
                 <Route path="/" element={<Navigate to="/login" replace />} />
                 <Route path="/login" element={<SignInForm />} />
-                <Route path="/register" element={<SignUpForm />} />
+                <Route
+                  path="/register"
+                  element={<SignUpForm role={USER_ROLES.TEACHER} />}
+                />
+                <Route
+                  path="/register/student"
+                  element={<SignUpForm role={USER_ROLES.STUDENT} />}
+                />
+                <Route
+                  path="/teacher-pending"
+                  element={
+                    <Authenticated fallback={<Navigate to="/login" replace />}>
+                      <TeacherPendingRoute />
+                    </Authenticated>
+                  }
+                />
               </Routes>
               <Toaster />
               <RefineKbar />

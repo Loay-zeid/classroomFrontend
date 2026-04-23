@@ -80,6 +80,23 @@ const UsersList = () => {
           ),
         },
         {
+          id: "approvalStatus",
+          accessorKey: "approvalStatus",
+          size: 160,
+          enableSorting: true,
+          header: () => <p className="column-title">Approval</p>,
+          cell: ({ row }) => {
+            if (row.original.role !== USER_ROLES.TEACHER) {
+              return <span className="text-muted-foreground">n/a</span>;
+            }
+            return (
+              <Badge variant="outline">
+                {row.original.approvalStatus ?? "approved"}
+              </Badge>
+            );
+          },
+        },
+        {
           id: "createdAt",
           accessorKey: "createdAt",
           size: 160,
