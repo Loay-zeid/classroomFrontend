@@ -36,7 +36,7 @@ const scheduleSchema = z.object({
     endTime: z.string().min(1, "End time is required"),
 });
 
-export const classSchema = z.object({
+const classBaseSchema = z.object({
     name: z
         .string()
         .min(2, "Class name must be at least 2 characters")
@@ -58,14 +58,24 @@ export const classSchema = z.object({
         })
         .min(1, "Capacity must be at least 1"),
     status: z.enum(["active", "inactive"]),
+    schedules: z.array(scheduleSchema).min(1, "At least one schedule is required"),
+});
+
+export const classCreateSchema = classBaseSchema.extend({
     bannerUrl: z
         .string({ required_error: "Class banner is required" })
         .min(1, "Class banner is required"),
     bannerCldPubId: z
         .string({ required_error: "Banner reference is required" })
         .min(1, "Banner reference is required"),
-    schedules: z.array(scheduleSchema).min(1, "At least one schedule is required"),
 });
+
+export const classEditSchema = classBaseSchema.extend({
+    bannerUrl: z.string().optional(),
+    bannerCldPubId: z.string().optional(),
+});
+
+export const classSchema = classCreateSchema;
 
 export const enrollmentSchema = z.object({
     classId: z.coerce

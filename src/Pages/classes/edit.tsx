@@ -22,7 +22,7 @@ import {
 import { EditView, EditViewHeader } from "@/components/refine-ui/views/edit-view";
 import { useBack, useList, useResourceParams, type HttpError } from "@refinedev/core";
 import { Loader2 } from "lucide-react";
-import { classSchema } from "@/lib/schema";
+import { classEditSchema } from "@/lib/schema";
 import UploadWidget from "@/components/upload-widget";
 import { Subject, UploadWidgetValue, User } from "@/types";
 import type { ControllerRenderProps } from "react-hook-form";
@@ -32,10 +32,10 @@ import { DeleteButton } from "@/components/refine-ui/buttons/delete";
 const ClassesEdit = () => {
   const back = useBack();
   const { id: recordItemId } = useResourceParams();
-  type ClassFormValues = z.infer<typeof classSchema>;
+  type ClassFormValues = z.infer<typeof classEditSchema>;
 
   const form = useForm<any, HttpError, ClassFormValues>({
-    resolver: zodResolver(classSchema),
+    resolver: zodResolver(classEditSchema),
     refineCoreProps: {
       resource: "classes",
       action: "edit",
@@ -158,7 +158,7 @@ const ClassesEdit = () => {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>
-                            Banner Image <span className="text-orange-600">*</span>
+                            Banner Image
                           </FormLabel>
                           <FormControl>
                             <UploadWidget
